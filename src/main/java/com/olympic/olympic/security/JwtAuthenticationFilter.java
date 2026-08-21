@@ -1,13 +1,8 @@
 package com.olympic.olympic.security;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.olympic.olympic.dto.ApiResponse;
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.JwtException;
-import jakarta.servlet.FilterChain;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.util.List;
+
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -15,8 +10,14 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import java.io.IOException;
-import java.util.List;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.JwtException;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 /**
  * Filtro que se ejecuta en cada petición: si viene un header
@@ -64,15 +65,21 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             }
         } catch (JwtException | IllegalArgumentException e) {
-            SecurityContextHolder.clearContext();
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            response.setContentType("application/json; charset=UTF-8");
-            response.getWriter().write(
-                    objectMapper.writeValueAsString(ApiResponse.error("Token inválido o expirado.")));
-            return;
-        }
+    // Token inválido/expirado: NO bloquear la petición.
+    // Solo limpiamos el contexto y borramos la cookie vieja;
+    // Spring Security decidirá si la ruta necesita auth.
+    SecurityContextHolder.clearContext();
 
-        filterChain.doFilter(request, response);
+    jakarta.servlet.http.Cookie cookieExpirada =
+            new jakarta.servlet.http.Cookie(JwtService.COOKIE_NAME, "");
+    cookieExpirada.setPath("/");
+    cookieExpirada.setMaxAge(0);      // borra la cookie del navegador
+    cookieExpirada.setHttpOnly(true);
+    response.addCookie(cookieExpirada);
+}
+
+filterChain.doFilter(request, response); // SIEMPRE continuar
+
     }
 
     /**

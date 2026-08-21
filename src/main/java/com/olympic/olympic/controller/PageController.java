@@ -2,7 +2,6 @@ package com.olympic.olympic.controller;
 
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -39,15 +38,9 @@ public class PageController {
      * Panel correspondiente al rol autenticado.
      */
     private String homePorRol(Authentication auth) {
-        for (GrantedAuthority autoridad : auth.getAuthorities()) {
-            if ("ROLE_ADMIN".equals(autoridad.getAuthority())) {
-                return "/admin/productos";
-            }
-            if ("ROLE_CLIENTE".equals(autoridad.getAuthority())) {
-                return "/";
-            }
-        }
-        return null;
+        // Tanto ADMIN como CLIENTE caen ahora en la home pública;
+        // desde ahí el botón "Panel Admin" lleva al panel correspondiente.
+        return "/";
     }
 
     @GetMapping("/registro")

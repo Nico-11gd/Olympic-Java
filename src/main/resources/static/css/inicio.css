@@ -1,21 +1,58 @@
 /* ============================================================
-   inicio.css — Solo lo específico de esta página (todo lo
-   compartido con producto.html está en tienda.css).
+   inicio.css — Página de inicio pública (tienda.css trae la base
+   compartida: navbar, toast y tarjeta de producto).
    ============================================================ */
 
-.ini-buscador { display: flex; align-items: center; gap: 8px; background: var(--field-bg); border: 1px solid var(--border); border-radius: 10px; padding: 9px 14px; flex: 1; min-width: 200px; max-width: 340px; }
-.ini-buscador input { border: none; background: none; outline: none; flex: 1; font-size: 14px; color: var(--dark); }
-.ini-buscador input::placeholder { color: #bbb; }
+body { background: #FAFAFA; }
 
-.ini-orden { border: 1px solid var(--border); border-radius: 8px; background: var(--white); padding: 9px 14px; font-size: 13px; color: var(--dark); cursor: pointer; }
-.ini-orden:focus { outline: none; border-color: var(--gold); box-shadow: 0 0 0 3px var(--gold-soft); }
+/* ── Controles: buscador + orden ── */
+.ini-controles {
+    display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+    margin-bottom: 16px;
+}
+.ini-buscador {
+    flex: 1; min-width: 220px; display: flex; align-items: center; gap: 8px;
+    background: var(--white); border-radius: 10px; padding: 10px 14px;
+    border: 1px solid var(--border); transition: border-color .15s ease;
+}
+.ini-buscador:focus-within { border-color: var(--gold); }
+.ini-buscador input { flex: 1; border: none; outline: none; background: none; font-size: 14px; color: var(--dark); }
+.ini-orden {
+    border: 1px solid var(--border); border-radius: 10px; padding: 10px 14px;
+    font-size: 13px; font-weight: 600; color: var(--dark); background: var(--white);
+    cursor: pointer;
+}
 
-.ini-chips { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 14px; scrollbar-width: none; }
+/* ── Chips de categoría ── */
+.ini-chips { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; margin-bottom: 24px; scrollbar-width: none; }
 .ini-chips::-webkit-scrollbar { display: none; }
-.ini-chip { flex-shrink: 0; padding: 7px 14px; border-radius: 20px; border: 1px solid var(--border); background: var(--white); color: #555; font-size: 13px; font-weight: 600; cursor: pointer; white-space: nowrap; }
-.ini-chip.activo { background: var(--dark); border-color: var(--dark); color: var(--white); }
+.ini-chip {
+    flex-shrink: 0; border: 1px solid var(--border); background: var(--white);
+    color: var(--muted); font-size: 13px; font-weight: 600;
+    padding: 8px 16px; border-radius: 20px; cursor: pointer;
+    transition: background-color .15s ease, color .15s ease, border-color .15s ease;
+}
+.ini-chip:hover { border-color: var(--gold); color: var(--dark); }
+.ini-chip.activo { background: var(--dark); border-color: var(--dark); color: var(--white); font-weight: 700; }
 
-.ini-footer { background: var(--dark); color: rgba(255,255,255,.7); padding: 32px 20px; margin-top: 40px; }
-.ini-footer a { color: rgba(255,255,255,.7); text-decoration: none; }
+/* ── Título + conteo de resultados ── */
+.ini-resultados-row {
+    display: flex; align-items: baseline; justify-content: space-between;
+    gap: 10px; margin-bottom: 18px; padding-bottom: 12px; border-bottom: 1px solid #F0F0F0;
+}
+.ini-titulo { font-size: 20px; font-weight: 800; color: var(--dark); margin: 0; }
+.ini-conteo { font-size: 13px; color: var(--muted); margin: 0; }
+
+.ini-vacio { display: flex; flex-direction: column; align-items: center; gap: 12px; padding: 70px 0; color: var(--muted-light); }
+.ini-vacio p { margin: 0; font-size: 14px; }
+
+/* ── Footer ── */
+.ini-footer { background: var(--dark); padding: 40px 0 24px; margin-top: 64px; color: #ccc; }
+.ini-footer a { color: #ccc; text-decoration: none; }
 .ini-footer a:hover { color: var(--gold); }
-.ini-footer .logo-circulo { width: 36px; height: 36px; border-radius: 50%; background: var(--red); display: flex; align-items: center; justify-content: center; font-weight: 900; color: var(--white); }
+.ini-footer h6 { font-size: 13px; font-weight: 700; letter-spacing: .5px; margin-bottom: 10px; }
+.logo-circulo { width: 30px; height: 30px; border-radius: 15px; background: var(--gold); color: var(--dark); display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 14px; }
+
+@media (max-width: 480px) {
+    .ini-titulo { font-size: 17px; }
+}

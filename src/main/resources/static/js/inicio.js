@@ -2,6 +2,10 @@
 // static/js/inicio.js
 // Página pública de la tienda — equivalente a app/(tabs)/catalogo.tsx.
 // El login solo se exige al comprar (ver producto.js).
+//
+// El cálculo de precios vive en precios.js, la tarjeta de producto en
+// producto-card.js y el navbar en navbar-publico.js — todo compartido
+// también con producto.js, nada duplicado aquí.
 // ============================================================
 (function () {
     'use strict';
@@ -15,23 +19,6 @@
     };
 
     function el(id) { return document.getElementById(id); }
-
-    function formatearPrecio(n) {
-        return '$' + Math.round(n || 0).toLocaleString();
-    }
-
-    /** Equivalente a utils/precios.ts::calcularPrecio(), sobre el DTO Java (camelCase). */
-    function calcularPrecio(producto) {
-        var tieneDescuento = producto.precioPromocion != null;
-        var precioBase = Number(producto.precio);
-        var precioFinal = tieneDescuento ? Number(producto.precioPromocion) : precioBase;
-        return {
-            tieneDescuento: tieneDescuento,
-            precioFinal: precioFinal,
-            precioAnterior: tieneDescuento ? precioBase : null,
-            porcentaje: tieneDescuento ? Math.round((1 - precioFinal / precioBase) * 100) : 0,
-        };
-    }
 
     var Api = {
         cargar: function () {
@@ -64,12 +51,6 @@
 
     var Render = {
 
-        navbar: function (usuario) {
-            el('nav-login').hidden = !!usuario;
-            el('nav-usuario').hidden = !usuario;
-            if (usuario) el('nav-usuario-nombre').textContent = usuario.nombre;
-        },
-
         chips: function () {
             var contenedor = el('ini-chips');
             contenedor.innerHTML = '';
@@ -89,40 +70,9 @@
         },
 
         grid: function (lista) {
-            var tpl = el('tpl-card');
             var contenedor = el('ini-grid');
             contenedor.innerHTML = '';
-
-            lista.forEach(function (p) {
-                var nodo = tpl.content.cloneNode(true);
-                var info = calcularPrecio(p);
-
-                nodo.querySelector('a.producto-card').href = '/producto?id=' + p.id;
-
-                var img = nodo.querySelector('img.producto-img');
-                var placeholder = nodo.querySelector('.img-placeholder');
-                if (p.imagenUrl) {
-                    img.src = p.imagenUrl;
-                    img.hidden = false;
-                    placeholder.hidden = true;
-                }
-
-                var badge = nodo.querySelector('.badge-descuento');
-                if (info.tieneDescuento) {
-                    badge.textContent = '-' + info.porcentaje + '%';
-                    badge.hidden = false;
-                }
-
-                nodo.querySelector('.nombre-producto').textContent = p.nombre;
-                nodo.querySelector('.precio').textContent = formatearPrecio(info.precioFinal);
-                if (info.tieneDescuento) {
-                    var precioAnterior = nodo.querySelector('.precio-anterior');
-                    precioAnterior.textContent = formatearPrecio(info.precioAnterior);
-                    precioAnterior.hidden = false;
-                }
-
-                contenedor.appendChild(nodo);
-            });
+            lista.forEach(function (p) { contenedor.appendChild(window.Olympic.crearTarjetaProducto(p)); });
         },
 
         todo: function () {
@@ -158,23 +108,11 @@
             Estado.orden = e.target.value;
             Render.todo();
         });
-
-        el('nav-logout').addEventListener('click', function () {
-            window.Olympic.Auth.logout();
-        });
-
-        el('nav-carrito-btn').addEventListener('click', function () {
-            window.Olympic.mostrarAdvertencia('El carrito estará disponible pronto');
-        });
     }
 
     document.addEventListener('DOMContentLoaded', function () {
         initEventos();
-
-        // Solo cambia el navbar, nunca bloquea la página. Si ves "Cerrar
-        // sesión" sin haber iniciado sesión en esta pestaña, es que ya
-        // tenías una cookie de sesión activa de antes.
-        window.Olympic.Auth.me().then(Render.navbar);
+        window.Olympic.NavbarPublico.init();
 
         el('ini-cargando').hidden = false;
         Api.cargar()

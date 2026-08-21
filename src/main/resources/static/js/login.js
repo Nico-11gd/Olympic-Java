@@ -235,10 +235,10 @@
                     mostrarToast(r.body.mensaje || 'Bienvenido', 'exito');
 
                     if (r.body.data.usuario.rol === 'admin') {
-                        mensajeEl.textContent = 'Sesión iniciada. Redirigiendo al panel de productos...';
+                        mensajeEl.textContent = 'Sesión iniciada. Redirigiendo...';
                         mensajeEl.className = 'mensaje-general exito';
                         mensajeEl.hidden = false;
-                        setTimeout(function () { window.location.href = '/admin/productos'; }, 600);
+                        setTimeout(function () { window.location.href = '/'; }, 600);
                     } else {
                         mensajeEl.textContent =
                             'Sesión iniciada correctamente. El catálogo para clientes se habilitará en una etapa posterior.';

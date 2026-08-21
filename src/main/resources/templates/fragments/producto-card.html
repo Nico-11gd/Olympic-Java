@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<!--
+    Tarjeta de producto — antes duplicada en inicio.html y producto.html.
+    Se incluye con: <div th:replace="~{fragments/producto-card :: tarjeta}"></div>
+    y se arma con Olympic.crearTarjetaProducto(producto) (static/js/producto-card.js).
+
+    FIX: la imagen y el placeholder ya NO se ocultan por separado con
+    hidden en cada uno (chocaba con la utilidad d-flex !important de
+    Bootstrap y el placeholder nunca desaparecía). Ahora se controla con
+    UNA clase modificadora en el contenedor (.sin-imagen), igual al
+    patrón que ya funcionaba en producto.css (.pd-imagen-wrap.sin-imagen).
+-->
+<body>
+<template th:fragment="tarjeta" id="tpl-card">
+    <div class="col">
+        <a class="producto-card d-block h-100" href="#">
+            <div class="producto-card-img">
+                <img class="producto-img" alt="" />
+                <svg class="icon producto-img-placeholder"><use href="#icon-shirt"/></svg>
+                <span class="badge-descuento" hidden></span>
+            </div>
+            <div class="p-2">
+                <p class="nombre-producto mb-1"></p>
+                <div>
+                    <span class="precio"></span>
+                    <span class="precio-anterior ms-1" hidden></span>
+                </div>
+            </div>
+        </a>
+    </div>
+</template>
+</body>
+</html>

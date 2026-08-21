@@ -2,6 +2,10 @@
 // static/js/producto.js
 // Detalle de producto — público. El login solo se exige al
 // hacer clic en "Añadir al carrito".
+//
+// El cálculo de precios vive en precios.js, la tarjeta de "también te
+// puede gustar" en producto-card.js y el navbar en navbar-publico.js —
+// todo compartido también con inicio.js, nada duplicado aquí.
 // ============================================================
 (function () {
     'use strict';
@@ -17,22 +21,6 @@
 
     function idDesdeUrl() {
         return new URLSearchParams(window.location.search).get('id');
-    }
-
-    function formatearPrecio(n) {
-        return '$' + Math.round(n || 0).toLocaleString();
-    }
-
-    function calcularPrecio(producto) {
-        var tieneDescuento = producto.precioPromocion != null;
-        var precioBase = Number(producto.precio);
-        var precioFinal = tieneDescuento ? Number(producto.precioPromocion) : precioBase;
-        return {
-            tieneDescuento: tieneDescuento,
-            precioFinal: precioFinal,
-            precioAnterior: tieneDescuento ? precioBase : null,
-            porcentaje: tieneDescuento ? Math.round((1 - precioFinal / precioBase) * 100) : 0,
-        };
     }
 
     var Api = {
@@ -54,15 +42,9 @@
 
     var Render = {
 
-        navbar: function (usuario) {
-            el('nav-login').hidden = !!usuario;
-            el('nav-usuario').hidden = !usuario;
-            if (usuario) el('nav-usuario-nombre').textContent = usuario.nombre;
-        },
-
         producto: function () {
             var p = Estado.producto;
-            var info = calcularPrecio(p);
+            var info = window.Olympic.calcularPrecio(p);
 
             document.title = p.nombre + ' — OLIMPIC';
 
@@ -74,10 +56,10 @@
 
             el('pd-categoria').textContent = p.categoria || '';
             el('pd-nombre').textContent = p.nombre;
-            el('pd-precio').textContent = formatearPrecio(info.precioFinal);
+            el('pd-precio').textContent = window.Olympic.formatearPrecio(info.precioFinal);
 
             if (info.tieneDescuento) {
-                el('pd-precio-anterior').textContent = formatearPrecio(info.precioAnterior);
+                el('pd-precio-anterior').textContent = window.Olympic.formatearPrecio(info.precioAnterior);
                 el('pd-precio-anterior').hidden = false;
                 el('pd-badge-descuento').textContent = '-' + info.porcentaje + '%';
                 el('pd-badge-descuento').hidden = false;
@@ -129,40 +111,9 @@
         relacionados: function (lista) {
             if (lista.length === 0) return;
             el('pd-relacionados-wrap').hidden = false;
-            var tpl = el('tpl-card');
             var contenedor = el('pd-relacionados');
             contenedor.innerHTML = '';
-
-            lista.forEach(function (p) {
-                var nodo = tpl.content.cloneNode(true);
-                var info = calcularPrecio(p);
-
-                nodo.querySelector('a.producto-card').href = '/producto?id=' + p.id;
-
-                var img = nodo.querySelector('img.producto-img');
-                var placeholder = nodo.querySelector('.img-placeholder');
-                if (p.imagenUrl) {
-                    img.src = p.imagenUrl;
-                    img.hidden = false;
-                    placeholder.hidden = true;
-                }
-
-                var badge = nodo.querySelector('.badge-descuento');
-                if (info.tieneDescuento) {
-                    badge.textContent = '-' + info.porcentaje + '%';
-                    badge.hidden = false;
-                }
-
-                nodo.querySelector('.nombre-producto').textContent = p.nombre;
-                nodo.querySelector('.precio').textContent = formatearPrecio(info.precioFinal);
-                if (info.tieneDescuento) {
-                    var precioAnterior = nodo.querySelector('.precio-anterior');
-                    precioAnterior.textContent = formatearPrecio(info.precioAnterior);
-                    precioAnterior.hidden = false;
-                }
-
-                contenedor.appendChild(nodo);
-            });
+            lista.forEach(function (p) { contenedor.appendChild(window.Olympic.crearTarjetaProducto(p)); });
         },
     };
 
@@ -199,10 +150,6 @@
         el('pd-cant-menos').addEventListener('click', function () { cambiarCantidad(-1); });
         el('pd-cant-mas').addEventListener('click', function () { cambiarCantidad(1); });
         el('pd-btn-comprar').addEventListener('click', alAgregarCarrito);
-        el('nav-logout').addEventListener('click', function () { window.Olympic.Auth.logout(); });
-        el('nav-carrito-btn').addEventListener('click', function () {
-            window.Olympic.mostrarAdvertencia('El carrito estará disponible pronto');
-        });
     }
 
     document.addEventListener('DOMContentLoaded', function () {
@@ -210,7 +157,7 @@
         if (!id) { window.location.href = '/'; return; }
 
         initEventos();
-        window.Olympic.Auth.me().then(Render.navbar);
+        window.Olympic.NavbarPublico.init();
 
         el('pd-cargando').hidden = false;
         Api.cargar(id)

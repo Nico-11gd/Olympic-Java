@@ -11,29 +11,19 @@
 <body>
 
 <div th:replace="~{fragments/iconos :: sprite}"></div>
-
-<header class="navbar">
-    <a class="nav-logo" href="/">OLIMPIC</a>
-    <div class="nav-acciones">
-        <button type="button" class="nav-icon-btn" id="nav-carrito-btn" aria-label="Carrito">
-            <svg class="icon"><use href="#icon-cart"/></svg>
-        </button>
-        <a class="btn-catalogo" href="/login" id="nav-login" hidden><span>Iniciar sesión</span></a>
-        <div class="nav-usuario" id="nav-usuario" hidden>
-            <span class="nav-usuario-nombre" id="nav-usuario-nombre"></span>
-            <button type="button" class="btn-catalogo" id="nav-logout"><span>Cerrar sesión</span></button>
-        </div>
-    </div>
-</header>
+<div th:replace="~{fragments/navbar-publico :: navbar}"></div>
 
 <div class="container py-4">
-    <a href="/" class="pd-volver">← Volver al catálogo</a>
+    <a href="/" class="pd-volver">
+        <svg class="icon icon-xs"><use href="#icon-arrow-left"/></svg>
+        <span>Volver al catálogo</span>
+    </a>
 
     <div class="text-center py-5" id="pd-cargando">
         <div class="spinner-border" style="color:var(--gold)" role="status"></div>
     </div>
 
-    <div class="row g-4 mt-1" id="pd-contenido" hidden>
+    <div class="row g-5 pd-contenido" id="pd-contenido" hidden>
         <div class="col-md-6">
             <div class="pd-imagen-wrap" id="pd-imagen-wrap">
                 <img class="pd-imagen" id="pd-imagen" alt="" />
@@ -42,72 +32,56 @@
         </div>
 
         <div class="col-md-6">
-            <p class="pd-categoria" id="pd-categoria"></p>
-            <h1 class="pd-nombre" id="pd-nombre"></h1>
+            <div class="pd-info">
+                <p class="pd-categoria" id="pd-categoria"></p>
+                <h1 class="pd-nombre" id="pd-nombre"></h1>
 
-            <div class="pd-precios">
-                <span class="pd-precio" id="pd-precio"></span>
-                <span class="pd-precio-anterior" id="pd-precio-anterior" hidden></span>
-                <span class="pd-badge-descuento" id="pd-badge-descuento" hidden></span>
-            </div>
-
-            <p class="pd-stock" id="pd-stock"></p>
-
-            <div class="pd-opciones mb-3" id="pd-tallas-wrap" hidden>
-                <p class="pd-opciones-label">Talla</p>
-                <div class="pd-opciones-botones" id="pd-tallas"></div>
-            </div>
-
-            <div class="pd-opciones mb-3" id="pd-colores-wrap" hidden>
-                <p class="pd-opciones-label">Color</p>
-                <div class="pd-opciones-botones" id="pd-colores"></div>
-            </div>
-
-            <div class="pd-opciones mb-4">
-                <p class="pd-opciones-label">Cantidad</p>
-                <div class="pd-stepper">
-                    <button type="button" id="pd-cant-menos" aria-label="Menos"><svg class="icon"><use href="#icon-minus"/></svg></button>
-                    <span id="pd-cant-valor">1</span>
-                    <button type="button" id="pd-cant-mas" aria-label="Más"><svg class="icon"><use href="#icon-plus"/></svg></button>
+                <div class="pd-precios">
+                    <span class="pd-precio" id="pd-precio"></span>
+                    <span class="pd-precio-anterior" id="pd-precio-anterior" hidden></span>
+                    <span class="pd-badge-descuento" id="pd-badge-descuento" hidden></span>
                 </div>
-            </div>
 
-            <button type="button" class="pd-btn-comprar" id="pd-btn-comprar">Añadir al carrito</button>
+                <p class="pd-stock" id="pd-stock"></p>
 
-            <div class="pd-descripcion-wrap" id="pd-descripcion-wrap" hidden>
-                <p class="pd-descripcion-titulo">Descripción</p>
-                <p class="pd-descripcion" id="pd-descripcion"></p>
+                <div class="pd-separador"></div>
+
+                <div class="pd-opciones mb-3" id="pd-tallas-wrap" hidden>
+                    <p class="pd-opciones-label">Talla</p>
+                    <div class="pd-opciones-botones" id="pd-tallas"></div>
+                </div>
+
+                <div class="pd-opciones mb-3" id="pd-colores-wrap" hidden>
+                    <p class="pd-opciones-label">Color</p>
+                    <div class="pd-opciones-botones" id="pd-colores"></div>
+                </div>
+
+                <div class="pd-opciones mb-4">
+                    <p class="pd-opciones-label">Cantidad</p>
+                    <div class="pd-stepper">
+                        <button type="button" id="pd-cant-menos" aria-label="Menos"><svg class="icon"><use href="#icon-minus"/></svg></button>
+                        <span id="pd-cant-valor">1</span>
+                        <button type="button" id="pd-cant-mas" aria-label="Más"><svg class="icon"><use href="#icon-plus"/></svg></button>
+                    </div>
+                </div>
+
+                <button type="button" class="pd-btn-comprar" id="pd-btn-comprar">Añadir al carrito</button>
+
+                <div class="pd-descripcion-wrap" id="pd-descripcion-wrap" hidden>
+                    <p class="pd-descripcion-titulo">Descripción</p>
+                    <p class="pd-descripcion" id="pd-descripcion"></p>
+                </div>
             </div>
         </div>
     </div>
 
     <div class="pd-relacionados-wrap" id="pd-relacionados-wrap" hidden>
         <h2 class="pd-relacionados-titulo">También te puede gustar</h2>
-        <div class="row row-cols-2 row-cols-md-4 g-3" id="pd-relacionados"></div>
+        <div class="row row-cols-2 row-cols-md-4 g-4" id="pd-relacionados"></div>
     </div>
 </div>
 
-<!-- Misma tarjeta que inicio.html, para los relacionados -->
-<template id="tpl-card">
-    <div class="col">
-        <a class="producto-card d-block h-100" href="#">
-            <div class="producto-card-img position-relative">
-                <img class="producto-img" alt="" hidden />
-                <div class="producto-img img-placeholder d-flex align-items-center justify-content-center">
-                    <svg class="icon icon-xl icon-muted"><use href="#icon-shirt"/></svg>
-                </div>
-                <span class="badge-descuento position-absolute" hidden></span>
-            </div>
-            <div class="p-2">
-                <p class="nombre-producto mb-1"></p>
-                <div>
-                    <span class="precio"></span>
-                    <span class="precio-anterior ms-1" hidden></span>
-                </div>
-            </div>
-        </a>
-    </div>
-</template>
+<div th:replace="~{fragments/producto-card :: tarjeta}"></div>
 
 <div class="toast" id="toast" hidden></div>
 
@@ -115,6 +89,9 @@
 <script th:src="@{/js/notificaciones.js}" src="/js/notificaciones.js"></script>
 <script th:src="@{/js/auth.js}" src="/js/auth.js"></script>
 <script th:src="@{/js/api.js}" src="/js/api.js"></script>
+<script th:src="@{/js/navbar-publico.js}" src="/js/navbar-publico.js"></script>
+<script th:src="@{/js/precios.js}" src="/js/precios.js"></script>
+<script th:src="@{/js/producto-card.js}" src="/js/producto-card.js"></script>
 <script th:src="@{/js/producto.js}" src="/js/producto.js"></script>
 </body>
 </html>

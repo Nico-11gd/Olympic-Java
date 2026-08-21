@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<!--
+    Navbar de las páginas públicas — antes duplicado en inicio.html y
+    producto.html. Se incluye con:
+      <div th:replace="~{fragments/navbar-publico :: navbar}"></div>
+    y se activa con Olympic.NavbarPublico.init() (navbar-publico.js).
+-->
+<body>
+<div th:fragment="navbar">
+    <header class="navbar">
+        <a class="nav-logo" href="/">OLIMPIC</a>
+        <div class="nav-acciones">
+            <button type="button" class="nav-icon-btn" id="nav-carrito-btn" aria-label="Carrito">
+                <svg class="icon"><use href="#icon-cart"/></svg>
+            </button>
+            <a class="btn-catalogo" href="/login" id="nav-login" hidden><span>Iniciar sesión</span></a>
+            <div class="nav-usuario" id="nav-usuario" hidden>
+                <button type="button" class="btn-catalogo" id="nav-panel-admin" hidden>
+                    <svg class="icon"><use href="#icon-grid"/></svg>
+                    <span>Panel Admin</span>
+                </button>
+                <button type="button" class="btn-catalogo" id="nav-logout"><span>Cerrar sesión</span></button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Menú lateral de panel (Admin por ahora; Cliente se agregará después) -->
+    <div class="panel-lateral-fondo" id="panel-lateral-fondo" hidden></div>
+    <aside class="panel-lateral" id="panel-lateral" hidden>
+        <div class="panel-lateral-header">
+            <span>Panel Admin</span>
+            <button type="button" class="nav-icon-btn" id="panel-lateral-cerrar" aria-label="Cerrar">
+                <svg class="icon"><use href="#icon-close"/></svg>
+            </button>
+        </div>
+        <nav class="panel-lateral-nav">
+            <a href="/admin/productos" class="panel-lateral-link">
+                <svg class="icon"><use href="#icon-cube"/></svg>
+                <span>Productos</span>
+            </a>
+        </nav>
+    </aside>
+</div>
+</body>
+</html>
