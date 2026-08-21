@@ -1,0 +1,61 @@
+spring:
+  application:
+    name: olympic
+
+  datasource:
+    url: jdbc:mysql://localhost:3306/olympic_db?useSSL=false&serverTimezone=UTC
+    username: root
+    password:
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+
+  thymeleaf:
+    cache: false
+    encoding: UTF-8
+
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 5MB
+      max-request-size: 6MB
+
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: ${MAIL_USERNAME:}
+    password: ${MAIL_PASSWORD:}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
+server:
+  port: 8080
+
+# ── Configuración propia de OLYMPIC ─────────────────────────
+app:
+  jwt:
+    # Clave secreta usada para firmar los tokens JWT (HS256).
+    # En producción debe sobreescribirse con una variable de entorno.
+    secret: "b2x5bXBpY19zZWNyZXRfa2V5X3BhcmFfand0X2Rlc2Fycm9sbG9fMjAyNl9jYW1iaWFyX2VuX3Byb2R1Y2Npb24="
+    expiration-ms: 86400000 # 24 horas
+    # false en local (http://localhost, sin HTTPS). Cambiar a true al desplegar con HTTPS,
+    # si no, el navegador ignora la cookie por completo y nadie puede loguearse.
+    cookie-secure: false
+
+  upload:
+    dir: uploads/productos
+    max-size-bytes: 5242880 # 5 MB
+    allowed-extensions: jpg,jpeg,png,webp
+
+  recuperacion-password:
+    expiracion-minutos: 15
+    remitente: ${MAIL_USERNAME:}

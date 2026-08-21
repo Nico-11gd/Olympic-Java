@@ -1,0 +1,21 @@
+/* ============================================================
+   inicio.css — Solo lo específico de esta página (todo lo
+   compartido con producto.html está en tienda.css).
+   ============================================================ */
+
+.ini-buscador { display: flex; align-items: center; gap: 8px; background: var(--field-bg); border: 1px solid var(--border); border-radius: 10px; padding: 9px 14px; flex: 1; min-width: 200px; max-width: 340px; }
+.ini-buscador input { border: none; background: none; outline: none; flex: 1; font-size: 14px; color: var(--dark); }
+.ini-buscador input::placeholder { color: #bbb; }
+
+.ini-orden { border: 1px solid var(--border); border-radius: 8px; background: var(--white); padding: 9px 14px; font-size: 13px; color: var(--dark); cursor: pointer; }
+.ini-orden:focus { outline: none; border-color: var(--gold); box-shadow: 0 0 0 3px var(--gold-soft); }
+
+.ini-chips { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 14px; scrollbar-width: none; }
+.ini-chips::-webkit-scrollbar { display: none; }
+.ini-chip { flex-shrink: 0; padding: 7px 14px; border-radius: 20px; border: 1px solid var(--border); background: var(--white); color: #555; font-size: 13px; font-weight: 600; cursor: pointer; white-space: nowrap; }
+.ini-chip.activo { background: var(--dark); border-color: var(--dark); color: var(--white); }
+
+.ini-footer { background: var(--dark); color: rgba(255,255,255,.7); padding: 32px 20px; margin-top: 40px; }
+.ini-footer a { color: rgba(255,255,255,.7); text-decoration: none; }
+.ini-footer a:hover { color: var(--gold); }
+.ini-footer .logo-circulo { width: 36px; height: 36px; border-radius: 50%; background: var(--red); display: flex; align-items: center; justify-content: center; font-weight: 900; color: var(--white); }

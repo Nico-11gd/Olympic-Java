@@ -1,0 +1,34 @@
+package com.olympic.olympic.dto;
+
+/**
+ * Payload de un login exitoso: token JWT + datos del usuario autenticado.
+ */
+public class LoginResponse {
+
+    private String token;
+    private UsuarioResponse usuario;
+
+    public LoginResponse() {
+    }
+
+    public LoginResponse(String token, UsuarioResponse usuario) {
+        this.token = token;
+        this.usuario = usuario;
+    }
+
+    public String getToken() {
+        return token;
+    }
+
+    public void setToken(String token) {
+        this.token = token;
+    }
+
+    public UsuarioResponse getUsuario() {
+        return usuario;
+    }
+
+    public void setUsuario(UsuarioResponse usuario) {
+        this.usuario = usuario;
+    }
+}

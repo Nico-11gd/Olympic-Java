@@ -1,0 +1,279 @@
+/* ============================================================
+   productos.css — Réplica de app/admin/productos.tsx +
+   _crear-producto.tsx / _editar-producto.tsx (proyecto OLYMPIC)
+   Reutiliza variables definidas en login.css
+   ============================================================ */
+
+.pagina-productos { background: #F0F2F5; min-height: 100vh; }
+.pagina-productos .wrapper { min-height: 100vh; }
+.pagina-productos .btn-catalogo { border: none; cursor: pointer; font-family: inherit; }
+
+.icon-xl { width: 44px; height: 44px; }
+.icon-muted { color: #ccc; }
+
+/* ── Encabezado ── */
+.contenedor-productos { padding: 0; }
+.p-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 22px 28px;
+    background: #fff; border-bottom: 1px solid #eee;
+    flex-wrap: wrap; gap: 14px;
+}
+.p-titulo { font-size: 26px; font-weight: 900; color: var(--dark); margin: 0; }
+.p-header-right { display: flex; align-items: center; gap: 12px; }
+
+.p-buscador {
+    display: flex; align-items: center; gap: 8px;
+    background: #F0F2F5; border-radius: 10px;
+    padding: 9px 14px; border: 1px solid #e0e0e0; width: 240px;
+}
+.p-buscador input { border: none; background: none; outline: none; flex: 1; min-width: 0; font-size: 14px; color: var(--dark); }
+.p-buscador button {
+    background: rgba(0,0,0,0.05); border: none; cursor: pointer; color: #999; padding: 0;
+    display: flex; align-items: center; justify-content: center;
+    width: 20px; height: 20px; border-radius: 50%; flex-shrink: 0;
+    -webkit-appearance: none; appearance: none;
+}
+.p-buscador button[hidden] { display: none; }
+.p-buscador button:hover { background: rgba(0,0,0,0.1); color: #777; }
+
+
+.p-btn-nuevo {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: var(--gold); color: #fff;
+    padding: 10px 26px; border-radius: 10px; border: none;
+    font-weight: 800; font-size: 14px; cursor: pointer; flex-shrink: 0;
+}
+.p-btn-nuevo .icon { color: #fff; }
+
+/* ── Filtros ── */
+.p-filtros-bar {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 12px 28px; background: #fff; border-bottom: 1px solid #f0f0f0;
+    flex-wrap: wrap; gap: 8px;
+}
+.p-filtros { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.p-filtro {
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 7px 14px; border-radius: 20px; border: 1px solid #ddd;
+    background: #fff; color: #888; font-size: 12px; font-weight: 600; cursor: pointer;
+}
+.p-filtro .icon { color: #888; }
+.p-filtro.activo { background: var(--dark); border-color: var(--dark); color: #fff; font-weight: 700; }
+.p-filtro.activo .icon { color: #fff; }
+.p-contador { font-size: 12px; color: #aaa; font-weight: 600; }
+
+/* ── Carga ── */
+.p-cargando { display: flex; justify-content: center; padding: 60px 0; }
+.p-cargando[hidden] { display: none; }
+.spinner-grande {
+    width: 34px; height: 34px; border: 3px solid rgba(212,175,55,0.25);
+    border-top-color: var(--gold); border-radius: 50%; animation: girar 0.8s linear infinite;
+}
+
+/* ── Tabla (escritorio) ── */
+.p-tabla-wrap { background: #fff; margin: 20px; border-radius: 14px; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,0.06); }
+.p-tabla-header {
+    display: flex; align-items: center; padding: 14px 20px;
+    background: #F0F2F5; border-bottom: 2px solid var(--dark);
+    font-size: 12px; font-weight: 800; color: var(--dark); text-transform: uppercase; letter-spacing: 0.7px;
+}
+.p-fila { display: flex; align-items: center; padding: 18px 20px; border-bottom: 1px solid #f5f5f5; }
+.p-fila:nth-child(even) { background: #fafafa; }
+.p-td { display: flex; align-items: center; }
+.p-td-producto { gap: 14px; }
+
+.p-img, .p-img-movil { width: 56px; height: 56px; border-radius: 10px; object-fit: cover; }
+.p-img-movil { width: 48px; height: 48px; border-radius: 8px; }
+.p-img-placeholder, .p-img-placeholder-movil {
+    width: 56px; height: 56px; border-radius: 10px; background: #F0F2F5;
+    display: flex; align-items: center; justify-content: center; color: #ccc;
+}
+.p-img-placeholder[hidden], .p-img-placeholder-movil[hidden] { display: none; }
+.p-img-placeholder-movil { width: 48px; height: 48px; border-radius: 8px; }
+.p-td-info { flex: 1; min-width: 0; }
+.p-nombre { font-size: 15px; font-weight: 700; color: var(--dark); margin: 0 0 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.p-codigo { font-size: 12px; color: #aaa; font-weight: 600; margin: 0; }
+.p-categoria { font-size: 14px; color: #666; }
+.p-precio { font-size: 15px; font-weight: 700; color: var(--dark); }
+
+.p-stock-badge { padding: 4px 10px; border-radius: 20px; font-size: 14px; font-weight: 800; }
+.p-estado-badge { display: inline-flex; align-items: center; gap: 5px; padding: 5px 10px; border-radius: 20px; }
+.p-estado-dot { width: 7px; height: 7px; border-radius: 4px; }
+.p-estado-texto { font-size: 12px; font-weight: 700; }
+
+.p-td-acciones { gap: 8px; }
+.p-btn-icono {
+    width: 34px; height: 34px; border-radius: 8px; border: none; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+}
+
+/* ── Tarjetas móviles ── */
+.p-cards { padding: 16px; }
+.p-card-producto { background: #fff; border-radius: 14px; padding: 16px; margin-bottom: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+.p-card-header { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 12px; }
+.p-card-info { flex: 1; min-width: 0; }
+.p-card-footer { display: flex; align-items: center; justify-content: space-between; padding-top: 12px; border-top: 1px solid #f5f5f5; flex-wrap: wrap; gap: 8px; }
+.p-card-footer-info { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.p-card-footer-acciones { display: flex; align-items: center; gap: 8px; }
+
+.p-vacio { display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 60px 0; color: #bbb; }
+.p-vacio[hidden] { display: none; }
+
+@media (min-width: 769px) {
+    .p-cards { display: none !important; }
+}
+@media (max-width: 768px) {
+    .p-tabla-wrap { display: none !important; }
+    .p-header { flex-direction: column; align-items: stretch; padding: 16px; }
+    .p-header-right { width: 100%; justify-content: space-between; }
+    .p-buscador { flex: 1; width: auto; min-width: 0; margin-right: 10px; }
+    .p-filtros-bar { padding: 10px 16px; }
+}
+
+/* ============================================================
+   Modal Crear / Editar producto
+   ============================================================ */
+.pf-overlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.5);
+    display: flex; align-items: center; justify-content: center;
+    padding: 24px; z-index: 300;
+}
+.pf-overlay[hidden] { display: none; }
+.pf-card {
+    background: #fff; border-radius: 16px; padding: 24px;
+    width: 100%; max-width: 550px; max-height: 90vh;
+    display: flex; flex-direction: column;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.25);
+}
+.pf-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
+.pf-titulo { font-size: 20px; font-weight: 900; color: var(--dark); margin: 0; }
+.pf-cerrar { background: none; border: none; cursor: pointer; color: #888; padding: 4px; }
+.pf-subtitulo { font-size: 13px; color: #aaa; margin: 0 0 16px; }
+.pf-cargando { display: flex; flex-direction: column; align-items: center; gap: 12px; padding: 40px 0; color: #888; font-size: 13px; }
+.pf-cargando[hidden] { display: none; }
+
+.pf-scroll { overflow-y: auto; padding-bottom: 8px; }
+.pf-seccion { margin-bottom: 16px; }
+.pf-seccion-label { font-size: 13px; font-weight: 800; color: var(--dark); margin: 0 0 10px; }
+.pf-textarea {
+    width: 100%; background: #F7F8FA; border-radius: 10px; border: 1.5px solid var(--border);
+    padding: 12px; font-size: 14px; color: var(--dark); min-height: 70px; resize: vertical;
+    font-family: inherit; box-sizing: border-box;
+}
+.pf-dos-columnas { display: flex; }
+
+.pf-alerta, .pf-stock-ind {
+    display: flex; align-items: center; gap: 6px; border-radius: 8px; padding: 10px; margin-top: 8px;
+    background: rgba(229,57,53,0.12); border-left: 3px solid var(--red); font-size: 12px; font-weight: 600; color: var(--red);
+}
+.pf-alerta[hidden], .pf-stock-ind[hidden] { display: none; }
+.pf-stock-ind { border-left-color: currentColor; }
+
+.pf-imagen-preview {
+    width: 100%; height: 180px; border-radius: 12px; overflow: hidden;
+    background: #F0F2F5; border: 1.5px dashed var(--border);
+    display: flex; align-items: center; justify-content: center;
+    margin-bottom: 10px; position: relative; cursor: pointer;
+}
+.pf-imagen-placeholder { display: flex; flex-direction: column; align-items: center; gap: 8px; text-align: center; }
+.pf-imagen-placeholder p { margin: 0; font-size: 14px; color: #aaa; font-weight: 600; }
+.pf-imagen-placeholder[hidden] { display: none; }
+.pf-imagen-sub { font-size: 11px !important; color: #ccc !important; font-weight: 400 !important; }
+.pf-imagen-preview img { width: 100%; height: 100%; object-fit: cover; }
+.pf-imagen-overlay {
+    position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.45);
+    padding: 10px; display: flex; align-items: center; justify-content: center; gap: 8px;
+    color: #fff; font-weight: 700; font-size: 13px;
+}
+.pf-imagen-overlay[hidden] { display: none; }
+.pf-imagen-cargando { display: flex; flex-direction: column; align-items: center; gap: 10px; color: #888; font-size: 13px; }
+.pf-imagen-cargando[hidden] { display: none; }
+.pf-btn-seleccionar {
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    background: var(--gold-softer); border: 1px solid var(--gold);
+    border-radius: 10px; padding: 12px; width: 100%;
+    font-weight: 700; font-size: 14px; color: var(--dark); cursor: pointer;
+}
+
+.pf-preview-descuento {
+    display: flex; align-items: center; gap: 6px; background: rgba(67,160,71,0.12);
+    border-left: 3px solid var(--green); border-radius: 8px; padding: 10px; margin-top: 12px;
+    font-size: 13px; color: #333;
+}
+.pf-preview-descuento[hidden] { display: none; }
+.pf-preview-descuento strong { color: var(--dark); font-weight: 900; }
+
+.pf-acciones { display: flex; gap: 10px; margin-top: 8px; }
+.pf-btn-cancelar { flex: 1; background: #f5f5f5; border: none; padding: 14px; border-radius: 12px; color: #555; font-weight: 700; cursor: pointer; }
+.pf-btn-guardar {
+    flex: 2; background: var(--gold); border: none; padding: 14px; border-radius: 12px;
+    color: var(--dark); font-weight: 800; font-size: 14px; cursor: pointer;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+}
+.pf-btn-guardar:disabled { opacity: 0.7; }
+
+/* Select nativo estilizado para verse consistente con el resto de campos */
+.campo-wrapper select {
+    flex: 1; border: none; outline: none; background: transparent;
+    padding: 13px 0; font-size: 14px; color: var(--dark); appearance: none;
+    -webkit-appearance: none; font-family: inherit;
+}
+
+/* Selector de etiquetas (tallas / colores) */
+.etiquetas-input {
+    display: flex; align-items: center; gap: 8px; background: #F7F8FA;
+    border-radius: 10px; padding: 0 12px; border: 1.5px solid var(--border);
+}
+.etiquetas-input input { flex: 1; border: none; background: none; outline: none; padding: 12px 0; font-size: 14px; color: var(--dark); }
+.etiquetas-input button { background: none; border: none; cursor: pointer; padding: 6px; color: #ccc; display: flex; }
+.etiquetas-input button.activo { color: var(--dark); }
+.etiquetas-sugerencias { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+.etiqueta-sugerencia {
+    padding: 5px 10px; border-radius: 14px; border: 1px solid #e0e0e0; background: #fafafa;
+    font-size: 12px; color: #777; font-weight: 600; cursor: pointer;
+}
+.etiquetas-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+.etiqueta-chip {
+    display: flex; align-items: center; gap: 6px; background: var(--gold-softer);
+    border: 1px solid rgba(212,175,55,0.55); border-radius: 16px; padding: 6px 12px;
+    font-size: 13px; font-weight: 700; color: var(--dark);
+}
+.etiqueta-chip button { background: none; border: none; cursor: pointer; display: flex; color: var(--dark); padding: 0; }
+.etiquetas-ayuda { font-size: 11px; color: #bbb; margin-top: 6px; }
+/* ============================================================
+   Dropdown personalizado (custom-select.js)
+   ============================================================ */
+.cs-select-oculto { display: none; }
+
+.campo-wrapper .cs-trigger {
+    flex: 1; min-width: 0; display: flex; align-items: center; justify-content: space-between; gap: 8px;
+    border: none; outline: none; background: transparent; cursor: pointer;
+    padding: 13px 0; font-size: 14px; color: var(--dark); font-family: inherit;
+}
+.cs-trigger:disabled { cursor: not-allowed; opacity: 0.6; }
+.cs-trigger-texto { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; text-align: left; }
+.cs-trigger-vacio .cs-trigger-texto { color: #bbb; }
+
+.cs-chevron {
+    width: 16px; height: 16px; flex-shrink: 0; fill: none;
+    stroke: #999; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
+    transition: transform 0.15s ease;
+}
+.cs-trigger-abierto .cs-chevron { transform: rotate(180deg); }
+
+.cs-panel {
+    position: fixed; z-index: 500; background: #fff; border: 1.5px solid var(--border);
+    border-radius: 10px; box-shadow: 0 12px 30px rgba(0,0,0,0.15);
+    padding: 6px; max-height: 240px; overflow-y: auto;
+}
+.cs-panel[hidden] { display: none; }
+
+.cs-opcion {
+    display: block; width: 100%; text-align: left; border: none; background: none;
+    padding: 10px 12px; border-radius: 8px; font-size: 14px; color: var(--dark);
+    cursor: pointer; font-family: inherit;
+}
+.cs-opcion:hover { background: var(--field-bg); }
+.cs-opcion-activa { background: var(--gold-soft); font-weight: 700; }
+.cs-opcion:disabled { color: #ccc; cursor: not-allowed; }
