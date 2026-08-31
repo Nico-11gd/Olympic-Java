@@ -34,6 +34,9 @@ public class Usuario {
     @Column(name = "activo", nullable = false)
     private Boolean activo;
 
+    @Column(name = "foto_perfil", length = 255)
+    private String fotoPerfil;
+
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
@@ -41,13 +44,14 @@ public class Usuario {
     }
 
     public Usuario(Integer id, String nombre, String correo, String password,
-                   Rol rol, Boolean activo, LocalDateTime createdAt) {
+                   Rol rol, Boolean activo, String fotoPerfil, LocalDateTime createdAt) {
         this.id = id;
         this.nombre = nombre;
         this.correo = correo;
         this.password = password;
         this.rol = rol;
         this.activo = activo;
+        this.fotoPerfil = fotoPerfil;
         this.createdAt = createdAt;
     }
 
@@ -97,6 +101,14 @@ public class Usuario {
 
     public void setActivo(Boolean activo) {
         this.activo = activo;
+    }
+
+    public String getFotoPerfil() {
+        return fotoPerfil;
+    }
+
+    public void setFotoPerfil(String fotoPerfil) {
+        this.fotoPerfil = fotoPerfil;
     }
 
     public LocalDateTime getCreatedAt() {

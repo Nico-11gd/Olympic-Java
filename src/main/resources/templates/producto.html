@@ -3,64 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title th:text="${producto.nombre} + ' - OLIMPIC'">Producto - OLIMPIC</title>
+    <title th:text="${producto.nombre} + ' - Olympic Store'">Producto - Olympic Store</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
-    <style>
-        .btn-check:checked + .btn-talla-seleccion {
-            background: #D4AF37 !important;
-            color: #fff !important;
-            border-color: #D4AF37 !important;
-        }
-        .qty-btn {
-            display: inline-flex; align-items: center; justify-content: center;
-            width: 38px; height: 38px; border-radius: 50%;
-            background: #F2E9D8; color: #241E14; border: 1.5px solid #D4AF37;
-            text-decoration: none; font-size: 1.1rem; font-weight: 700;
-            transition: background .2s;
-        }
-        .qty-btn:hover { background: #E6D9B8; }
-        .qty-btn.disabled { opacity: .4; pointer-events: none; }
-
-        .zoom-overlay {
-            position: fixed; inset: 0; z-index: 2000;
-            background: rgba(36,30,20,.92);
-            display: none; align-items: center; justify-content: center;
-            padding: 24px;
-        }
-        .zoom-overlay:target { display: flex; }
-        .zoom-overlay img {
-            max-width: 90vw; max-height: 88vh;
-            border-radius: 12px; box-shadow: 0 8px 40px rgba(0,0,0,.5);
-            object-fit: contain;
-        }
-        .zoom-close {
-            position: absolute; top: 20px; right: 28px;
-            color: #fff; text-decoration: none; font-size: 2rem;
-            width: 44px; height: 44px; display: flex; align-items: center; justify-content: center;
-            border-radius: 50%; background: rgba(255,255,255,.15);
-            transition: background .2s;
-        }
-        .zoom-close:hover { background: rgba(255,255,255,.3); }
-        .zoom-hint {
-            position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%);
-            color: rgba(255,255,255,.7); font-size: .8rem;
-        }
-    </style>
+    <link th:href="@{/css/olympic.css}" rel="stylesheet">
+    <script th:src="@{/js/tema-head.js}"></script>
 </head>
-<body style="background:#F2E9D8;">
+<body>
 
 <div th:replace="~{fragments/navbar :: navbar}"></div>
 
-<div class="container-fluid px-3 px-md-4 px-lg-5 py-4">
+<div class="container-fluid px-3 px-md-4 px-lg-5 py-4" style="background:var(--ol-black);">
 
     <nav aria-label="breadcrumb" class="mb-3">
         <ol class="breadcrumb small">
-            <li class="breadcrumb-item"><a th:href="@{/}" class="text-muted text-decoration-none">Inicio</a></li>
+            <li class="breadcrumb-item"><a th:href="@{/}" style="color:var(--ol-text-muted); text-decoration:none;">Inicio</a></li>
             <li class="breadcrumb-item" th:if="${producto.categoria != null}">
-                <a th:href="@{/(categoria=${producto.categoriaId})}" class="text-muted text-decoration-none" th:text="${producto.categoria}"></a>
+                <a th:href="@{/(categoria=${producto.categoriaId})}" style="color:var(--ol-text-muted); text-decoration:none;" th:text="${producto.categoria}"></a>
             </li>
-            <li class="breadcrumb-item active fw-semibold" style="color:#241E14;" th:text="${producto.nombre}"></li>
+            <li class="breadcrumb-item active fw-semibold" style="color:var(--ol-white);" th:text="${producto.nombre}"></li>
         </ol>
     </nav>
 
@@ -69,18 +30,17 @@
         <!-- IMAGENES: carrusel -->
         <div class="col-md-5">
             <div th:if="${producto.imagenUrl != null}" id="carouselProducto"
-                 class="carousel slide shadow-sm rounded-4 overflow-hidden"
-                 style="background:#FFF4D9; border:2px solid #D4AF37;">
+                 class="carousel slide rounded-4 overflow-hidden product-detail-ol">
                 <div class="carousel-inner">
                     <div th:each="img, stat : ${producto.imagenes}" class="carousel-item"
                          th:classappend="${stat.index == 0} ? 'active'">
                         <a th:href="'#zoom-' + ${stat.index}" class="d-block position-relative text-decoration-none">
-                            <div class="ratio ratio-4x3" style="background:#FFF4D9;">
+                            <div class="ratio ratio-4x3" style="background:var(--ol-gray);">
                                 <img th:src="@{${img}}" th:alt="${producto.nombre}"
                                      class="w-100 h-100" style="object-fit:cover;" alt="">
                             </div>
                             <span class="position-absolute bottom-0 end-0 m-2 badge rounded-pill"
-                                  style="background:rgba(36,30,20,.7); color:#fff; font-size:.7rem; backdrop-filter:blur(4px);">
+                                  style="background:rgba(0,0,0,.7); color:#fff; font-size:.7rem; backdrop-filter:blur(4px);">
                                 <i class="bi bi-search-plus me-1"></i>Ver imagen completa
                             </span>
                         </a>
@@ -89,21 +49,20 @@
                 <button th:if="${#lists.size(producto.imagenes) > 1}" class="carousel-control-prev" type="button"
                         data-bs-target="#carouselProducto" data-bs-slide="prev">
                     <span class="carousel-control-prev-icon" aria-hidden="true"
-                          style="background-color:rgba(36,30,20,.75); border-radius:50%; padding:14px; box-shadow:0 2px 6px rgba(0,0,0,.4);"></span>
+                          style="background-color:rgba(212,175,55,.75); border-radius:50%; padding:14px; box-shadow:0 2px 6px rgba(0,0,0,.4);"></span>
                     <span class="visually-hidden">Anterior</span>
                 </button>
                 <button th:if="${#lists.size(producto.imagenes) > 1}" class="carousel-control-next" type="button"
                         data-bs-target="#carouselProducto" data-bs-slide="next">
                     <span class="carousel-control-next-icon" aria-hidden="true"
-                          style="background-color:rgba(36,30,20,.75); border-radius:50%; padding:14px; box-shadow:0 2px 6px rgba(0,0,0,.4);"></span>
+                          style="background-color:rgba(212,175,55,.75); border-radius:50%; padding:14px; box-shadow:0 2px 6px rgba(0,0,0,.4);"></span>
                     <span class="visually-hidden">Siguiente</span>
                 </button>
 
-                <!-- Miniaturas / indicadores -->
                 <div th:if="${#lists.size(producto.imagenes) > 1}" class="d-flex justify-content-center gap-2 mt-2 pb-2">
                     <button th:each="img, stat : ${producto.imagenes}" type="button"
                             class="btn p-0 border border-2 rounded-2 overflow-hidden"
-                            th:styleappend="${stat.index == 0} ? 'border-color:#D4AF37;' : 'border-color:#E6D9B8;'"
+                            th:styleappend="${stat.index == 0} ? 'border-color:var(--ol-gold);' : 'border-color:var(--ol-border);'"
                             th:attr="data-bs-target='#carouselProducto', data-bs-slide-to=${stat.index}, aria-label=${'Ir a imagen ' + stat.count}">
                         <img th:src="@{${img}}" th:alt="''" style="width:46px; height:46px; object-fit:cover; display:block;">
                     </button>
@@ -111,13 +70,12 @@
             </div>
 
             <div th:unless="${producto.imagenUrl != null}"
-                 class="ratio ratio-4x3 rounded-4 overflow-hidden shadow-sm" style="background:#FFF4D9; border:2px solid #D4AF37;">
-                <div class="d-flex align-items-center justify-content-center h-100">
-                    <i class="bi bi-image text-muted" style="font-size:4rem;"></i>
+                 class="ratio ratio-4x3 rounded-4 overflow-hidden product-detail-ol">
+                <div class="d-flex align-items-center justify-content-center h-100" style="background:var(--ol-gray);">
+                    <i class="bi bi-image text-ol-muted" style="font-size:4rem;"></i>
                 </div>
             </div>
 
-            <!-- MODAL ZOOM POR IMAGEN (pantalla completa) -->
             <div th:each="img, stat : ${producto.imagenes}" th:id="'zoom-' + ${stat.index}" class="zoom-overlay">
                 <a href="#" class="zoom-close">&times;</a>
                 <img th:src="@{${img}}" th:alt="${producto.nombre}">
@@ -129,41 +87,40 @@
         <div class="col-md-7">
             <form th:action="@{/carrito/agregar}" method="post" id="formCarrito">
                 <input type="hidden" name="productoId" th:value="${producto.id}">
-
                 <p th:if="${producto.categoria != null}" class="text-uppercase small fw-semibold mb-1"
-                   style="color:#8A6D1A; letter-spacing:1px;" th:text="${producto.categoria}"></p>
+                   style="color:var(--ol-gold); letter-spacing:1px;" th:text="${producto.categoria}"></p>
 
-                <h1 class="fw-bold mb-2" style="color:#241E14;" th:text="${producto.nombre}"></h1>
+                <h1 class="fw-bold mb-2" style="color:var(--ol-white);" th:text="${producto.nombre}"></h1>
 
-                <p th:if="${producto.codigo != null}" class="text-muted small mb-3" th:text="'SKU: ' + ${producto.codigo}"></p>
+                <p th:if="${producto.codigo != null}" class="small mb-3" style="color:var(--ol-text-muted);" th:text="'SKU: ' + ${producto.codigo}"></p>
 
                 <!-- PRECIO -->
-                <div class="mb-3 pb-3" style="border-bottom:1px solid #E6D9B8;">
+                <div class="mb-3 pb-3" style="border-bottom:1px solid var(--ol-border);">
                     <span th:if="${producto.precioPromocion != null}">
-                        <span class="fs-3 fw-bold" style="color:#D4AF37;"
+                        <span class="fs-3 fw-bold" style="color:var(--ol-gold);"
                               th:text="'$' + ${#numbers.formatDecimal(producto.precioPromocion, 0, 'COMMA', 0, 'POINT')}"></span>
-                        <span class="text-muted text-decoration-line-through ms-2"
+                        <span class="text-ol-muted text-decoration-line-through ms-2"
                               th:text="'$' + ${#numbers.formatDecimal(producto.precio, 0, 'COMMA', 0, 'POINT')}"></span>
                         <span class="badge bg-danger ms-2">Oferta</span>
                     </span>
-                    <span th:unless="${producto.precioPromocion != null}" class="fs-3 fw-bold" style="color:#D4AF37;"
+                    <span th:unless="${producto.precioPromocion != null}" class="fs-3 fw-bold" style="color:var(--ol-gold);"
                           th:text="'$' + ${#numbers.formatDecimal(producto.precio, 0, 'COMMA', 0, 'POINT')}"></span>
                 </div>
 
                 <!-- DESCRIPCION -->
                 <div th:if="${producto.descripcion != null}" class="mb-4">
-                    <h6 class="fw-bold text-uppercase mb-2" style="color:#241E14; letter-spacing:1px;">Descripción</h6>
-                    <p class="text-muted" th:text="${producto.descripcion}"></p>
+                    <h6 class="fw-bold text-uppercase mb-2" style="color:var(--ol-white); letter-spacing:1px;">Descripción</h6>
+                    <p style="color:var(--ol-text-muted);" th:text="${producto.descripcion}"></p>
                 </div>
 
                 <!-- TALLAS -->
                 <div th:if="${!producto.tallas.isEmpty()}" class="mb-4">
-                    <h6 class="fw-bold text-uppercase mb-2" style="color:#241E14; letter-spacing:1px;">Talla</h6>
+                    <h6 class="fw-bold text-uppercase mb-2" style="color:var(--ol-white); letter-spacing:1px;">Talla</h6>
                     <div class="d-flex flex-wrap gap-2">
                         <span th:each="t : ${producto.tallas}" class="d-inline-block">
                             <input type="radio" class="btn-check" name="talla" th:value="${t}" th:id="'talla-' + ${t}" autocomplete="off">
-                            <label class="btn btn-sm fw-semibold btn-talla-seleccion border border-2 border-dark rounded-2 shadow-sm"
-                                   style="background:#FFFDF6; color:#241E14; min-width:44px;"
+                            <label class="btn btn-sm fw-semibold btn-talla-seleccion border border-2 rounded-2 shadow-sm"
+                                   style="background:var(--ol-gray); color:var(--ol-text); min-width:44px; border-color:var(--ol-border);"
                                    th:for="'talla-' + ${t}"
                                    th:text="${t}"></label>
                         </span>
@@ -172,12 +129,12 @@
 
                 <!-- COLORES -->
                 <div th:if="${!producto.colores.isEmpty()}" class="mb-4">
-                    <h6 class="fw-bold text-uppercase mb-2" style="color:#241E14; letter-spacing:1px;">Color</h6>
+                    <h6 class="fw-bold text-uppercase mb-2" style="color:var(--ol-white); letter-spacing:1px;">Color</h6>
                     <div class="d-flex flex-wrap gap-2">
                         <span th:each="c : ${producto.colores}" class="d-inline-block">
                             <input type="radio" class="btn-check" name="color" th:value="${c}" th:id="'color-' + ${c}" autocomplete="off">
-                            <label class="btn btn-sm fw-semibold btn-talla-seleccion border border-2 border-dark rounded-2 shadow-sm"
-                                   style="background:#FFFDF6; color:#241E14; min-width:44px;"
+                            <label class="btn btn-sm fw-semibold btn-talla-seleccion border border-2 rounded-2 shadow-sm"
+                                   style="background:var(--ol-gray); color:var(--ol-text); min-width:44px; border-color:var(--ol-border);"
                                    th:for="'color-' + ${c}"
                                    th:text="${c}"></label>
                         </span>
@@ -186,7 +143,7 @@
 
                 <!-- CANTIDAD -->
                 <div class="mb-3">
-                    <h6 class="fw-bold text-uppercase mb-2" style="color:#241E14; letter-spacing:1px;">Cantidad</h6>
+                    <h6 class="fw-bold text-uppercase mb-2" style="color:var(--ol-white); letter-spacing:1px;">Cantidad</h6>
                     <div class="d-flex align-items-center gap-3">
                         <a th:href="@{/producto(id=${producto.id}, qty=${producto.stock > 1 ? 1 : 0})}"
                            th:classappend="${cantidadSeleccionada != null and cantidadSeleccionada <= 1} ? 'disabled'"
@@ -194,7 +151,7 @@
                         <input type="number" name="cantidad" th:value="${cantidadSeleccionada != null ? cantidadSeleccionada : 1}"
                                min="1" th:max="${producto.stock}"
                                class="form-control form-control-sm text-center fw-semibold"
-                               style="max-width:80px; background:#FFFDF6; border:1.5px solid #D4AF37; font-size:1rem;">
+                               style="max-width:80px; background:var(--ol-gray); border:1.5px solid var(--ol-border); color:var(--ol-text); font-size:1rem;">
                         <a th:href="@{/producto(id=${producto.id}, qty=${cantidadSeleccionada != null ? cantidadSeleccionada + 1 : 2})}"
                            th:classappend="${cantidadSeleccionada != null and cantidadSeleccionada >= producto.stock} ? 'disabled'"
                            class="qty-btn">+</a>
@@ -203,17 +160,17 @@
 
                 <!-- STOCK -->
                 <div class="mb-4">
-                    <p th:if="${producto.stock > 0}" class="small fw-semibold mb-0" style="color:#43A047;">
+                    <p th:if="${producto.stock > 0}" class="small fw-semibold mb-0" style="color:var(--ol-success);">
                         <i class="bi bi-check-circle-fill me-1"></i> Disponibles: <span th:text="${producto.stock}"></span> unidades
                     </p>
-                    <p th:unless="${producto.stock > 0}" class="small fw-semibold mb-0 text-danger">
+                    <p th:unless="${producto.stock > 0}" class="small fw-semibold mb-0" style="color:var(--ol-danger);">
                         <i class="bi bi-x-circle-fill me-1"></i> Sin stock disponible
                     </p>
                 </div>
 
                 <!-- BOTON CARRITO -->
-                <button type="submit" class="btn w-100 fw-bold py-2 rounded-pill"
-                        style="background:#D4AF37; color:#241E14; letter-spacing:1px;"
+                <button type="submit" class="btn w-100 fw-bold py-2 rounded-pill btn-ol-gold"
+                        style="letter-spacing:1px;"
                         th:disabled="${producto.stock == 0}">
                     <i class="bi bi-cart-plus me-2"></i> AÑADIR AL CARRITO
                 </button>
@@ -223,33 +180,30 @@
 
     <!-- TAMBIEN TE PUEDE GUSTAR -->
     <div th:unless="${relacionados.isEmpty()}" class="mb-5">
-        <h5 class="fw-bold text-uppercase mb-3 pb-2" style="color:#241E14; letter-spacing:1px; border-bottom:3px solid #D4AF37;">
-            También te puede gustar
-        </h5>
+        <h5 class="heading-ol text-uppercase mb-3">También te puede gustar</h5>
         <div class="row row-cols-2 row-cols-md-4 g-3">
             <div class="col" th:each="r : ${relacionados}">
                 <a th:href="@{/producto(id=${r.id})}" class="text-decoration-none">
-                    <div class="card h-100 border-0 shadow-sm rounded-4 overflow-hidden">
-                        <div class="ratio ratio-4x3" style="background:#FFF4D9;">
+                    <div class="card h-100 border-0 rounded-4 overflow-hidden product-card-ol">
+                        <div class="ratio ratio-4x3 product-img-wrap">
                             <img th:if="${r.imagenUrl != null}" th:src="@{${r.imagenUrl}}"
                                  class="w-100 h-100" style="object-fit:cover;" alt="">
                             <div th:unless="${r.imagenUrl != null}"
                                  class="d-flex align-items-center justify-content-center h-100">
-                                <i class="bi bi-bag text-muted fs-1"></i>
+                                <i class="bi bi-bag text-ol-muted fs-1"></i>
                             </div>
                         </div>
                         <div class="card-body p-2">
-                            <p class="fw-bold mb-1 text-truncate" style="color:#241E14; font-size:.85rem;"
-                               th:text="${r.nombre}"></p>
+                            <p class="product-name mb-1 text-truncate" th:text="${r.nombre}"></p>
                             <div>
                                 <span th:if="${r.precioPromocion != null}">
-                                    <span class="fw-bold" style="color:#D4AF37; font-size:.9rem;"
+                                    <span class="product-price" style="font-size:.9rem;"
                                           th:text="'$' + ${#numbers.formatDecimal(r.precioPromocion, 0, 'COMMA', 0, 'POINT')}"></span>
-                                    <span class="text-muted text-decoration-line-through small"
+                                    <span class="text-ol-muted text-decoration-line-through small"
                                           th:text="'$' + ${#numbers.formatDecimal(r.precio, 0, 'COMMA', 0, 'POINT')}"></span>
                                     <span class="badge bg-danger ms-1" th:text="'-' + ${r.descuentoPorcentaje} + '%'"></span>
                                 </span>
-                                <span th:unless="${r.precioPromocion != null}" class="fw-bold" style="color:#D4AF37; font-size:.9rem;"
+                                <span th:unless="${r.precioPromocion != null}" class="product-price" style="font-size:.9rem;"
                                       th:text="'$' + ${#numbers.formatDecimal(r.precio, 0, 'COMMA', 0, 'POINT')}"></span>
                             </div>
                         </div>
@@ -261,10 +215,12 @@
 
 </div>
 
-<footer class="text-center py-4 mt-5 small" style="background:#241E14; color:#D8CBA6;">
-    &copy; 2026 OLIMPIC STORE. Todos los derechos reservados.
+<footer class="footer-ol text-center py-4 mt-5 small">
+    &copy; 2026 Olympic Store. Todos los derechos reservados.
 </footer>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script th:src="@{/js/tema.js}"></script>
+<script th:src="@{/js/carrito.js}"></script>
 </body>
 </html>

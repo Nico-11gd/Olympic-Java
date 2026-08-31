@@ -34,11 +34,6 @@ public class WebConfig implements WebMvcConfigurer {
                 .addResourceLocations(ubicacionUploads);
     }
 
-    // Evita que el navegador guarde en caché las páginas privadas (o /login):
-    // así el botón "Atrás" no puede volver a mostrarlas como si la sesión
-    // siguiera activa después de un logout. Solo se aplica a estas rutas
-    // puntuales — el resto de la app (css/js/imágenes) se sigue cacheando
-    // normalmente. Cuando exista el panel cliente, agrega "/cliente/**" aquí.
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(new HandlerInterceptor() {
@@ -49,6 +44,6 @@ public class WebConfig implements WebMvcConfigurer {
                 response.setHeader("Expires", "0");
                 return true;
             }
-        }).addPathPatterns("/admin/**", "/login");
+        }).addPathPatterns("/admin/**", "/login", "/perfil/**");
     }
 }

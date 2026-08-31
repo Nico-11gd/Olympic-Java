@@ -4,142 +4,190 @@
 
 <th:block th:fragment="admin-header(currentPage)">
 
-<!-- ════════════════════════════════════════════════════════════════
-     SIDEBAR (menú lateral hamburguesa) con Bootstrap Offcanvas.
-     Se diferencia por rol: Admin ve todas las secciones; Cliente ve
-     solo su dashboard y su cuenta. Sin JS propio ni CSS personalizado.
-     ════════════════════════════════════════════════════════════════ -->
-<div class="offcanvas offcanvas-start text-bg-dark" tabindex="-1" id="adminSidebar"
-     aria-labelledby="adminSidebarLabel"
-     style="width:300px; background-color:#241E14;">
+<!-- SIDEBAR -->
+<div class="offcanvas offcanvas-start text-bg-dark sidebar-ol" tabindex="-1" id="adminSidebar"
+     aria-labelledby="adminSidebarLabel" style="width:300px;">
 
-    <!-- Cabecera del menú -->
-    <div class="offcanvas-header border-bottom" style="border-color:rgba(255,255,255,.1)!important;">
+    <div class="offcanvas-header sidebar-divider">
         <div class="d-flex align-items-center gap-2" id="adminSidebarLabel">
-            <img th:src="@{/marca/logo.png}" alt="Olimpic" style="height:32px; width:32px; object-fit:contain;">
-            <div>
-                <span class="fw-bold d-block text-uppercase" style="color:#D4AF37; letter-spacing:2px; font-size:.95rem;">Olimpic</span>
-                <span class="d-block small" style="color:rgba(255,255,255,.55); font-size:.7rem;">Panel de administración</span>
-            </div>
+            <img th:src="@{/marca/logo.png}" alt="Olympic Store" style="height:30px; width:auto; object-fit:contain;">
         </div>
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Cerrar"></button>
     </div>
 
-    <!-- Cuerpo: enlaces agrupados -->
     <div class="offcanvas-body p-0 d-flex flex-column overflow-hidden">
         <nav class="flex-grow-1 overflow-auto py-2">
 
-            <!-- PRINCIPAL (visible para todos los roles) -->
             <p class="text-uppercase small fw-semibold px-3 mt-2 mb-1"
-               style="color:rgba(255,255,255,.35); font-size:.65rem; letter-spacing:1px;">Principal</p>
+               style="color:var(--ol-text-muted); font-size:.65rem; letter-spacing:1px;">Principal</p>
             <a th:href="@{/admin}" class="d-flex align-items-center gap-3 px-3 py-2 text-decoration-none"
-               th:classappend="${currentPage == 'inicio'} ? 'border-start' : ''"
-               style="border-color:#D4AF37!important; border-width:3px!important; color:#FFFDF6;"
-               th:styleappend="${currentPage == 'inicio'} ? 'background:rgba(212,175,55,.15);' : ''">
-                <i class="bi bi-speedometer2 fs-5" style="color:#D4AF37; width:22px; text-align:center;"></i>
+               th:classappend="${currentPage == 'inicio'} ? 'sidebar-active' : ''"
+               style="color:var(--ol-text);">
+                <i class="bi bi-speedometer2 fs-5" style="color:var(--ol-gold); width:22px; text-align:center;"></i>
                 <span class="fw-semibold">Inicio</span>
             </a>
 
-            <!-- ===== Secciones exclusivas de ADMIN ===== -->
             <div sec:authorize="hasRole('ADMIN')">
-
                 <p class="text-uppercase small fw-semibold px-3 mt-3 mb-1"
-                   style="color:rgba(255,255,255,.35); font-size:.65rem; letter-spacing:1px;">Gestión</p>
+                   style="color:var(--ol-text-muted); font-size:.65rem; letter-spacing:1px;">Gestión</p>
                 <a th:href="@{/admin/productos}" class="d-flex align-items-center gap-3 px-3 py-2 text-decoration-none"
-                   th:classappend="${currentPage == 'productos'} ? 'border-start' : ''"
-                   style="border-color:#D4AF37!important; border-width:3px!important; color:#FFFDF6;"
-                   th:styleappend="${currentPage == 'productos'} ? 'background:rgba(212,175,55,.15);' : ''">
-                    <i class="bi bi-box-seam fs-5" style="color:#D4AF37; width:22px; text-align:center;"></i>
+                   th:classappend="${currentPage == 'productos'} ? 'sidebar-active' : ''"
+                   style="color:var(--ol-text);">
+                    <i class="bi bi-box-seam fs-5" style="color:var(--ol-gold); width:22px; text-align:center;"></i>
                     <span class="fw-semibold">Productos</span>
                 </a>
                 <a th:href="@{/admin/usuarios}" class="d-flex align-items-center gap-3 px-3 py-2 text-decoration-none"
-                   th:classappend="${currentPage == 'usuarios'} ? 'border-start' : ''"
-                   style="border-color:#D4AF37!important; border-width:3px!important; color:#FFFDF6;"
-                   th:styleappend="${currentPage == 'usuarios'} ? 'background:rgba(212,175,55,.15);' : ''">
-                    <i class="bi bi-people fs-5" style="color:#D4AF37; width:22px; text-align:center;"></i>
+                   th:classappend="${currentPage == 'usuarios'} ? 'sidebar-active' : ''"
+                   style="color:var(--ol-text);">
+                    <i class="bi bi-people fs-5" style="color:var(--ol-gold); width:22px; text-align:center;"></i>
                     <span class="fw-semibold">Usuarios</span>
                 </a>
 
                 <p class="text-uppercase small fw-semibold px-3 mt-3 mb-1"
-                   style="color:rgba(255,255,255,.35); font-size:.65rem; letter-spacing:1px;">Comercial</p>
-                <a href="#ventas" class="d-flex align-items-center gap-3 px-3 py-2 text-decoration-none" style="color:#FFFDF6;">
-                    <i class="bi bi-cart-check fs-5" style="color:#D4AF37; width:22px; text-align:center;"></i>
+                   style="color:var(--ol-text-muted); font-size:.65rem; letter-spacing:1px;">Comercial</p>
+                <a href="#ventas" class="d-flex align-items-center gap-3 px-3 py-2 text-decoration-none" style="color:var(--ol-text);">
+                    <i class="bi bi-cart-check fs-5" style="color:var(--ol-gold); width:22px; text-align:center;"></i>
                     <span class="fw-semibold">Ventas</span>
                 </a>
-                <a href="#reportes" class="d-flex align-items-center gap-3 px-3 py-2 text-decoration-none" style="color:#FFFDF6;">
-                    <i class="bi bi-bar-chart fs-5" style="color:#D4AF37; width:22px; text-align:center;"></i>
+                <a href="#reportes" class="d-flex align-items-center gap-3 px-3 py-2 text-decoration-none" style="color:var(--ol-text);">
+                    <i class="bi bi-bar-chart fs-5" style="color:var(--ol-gold); width:22px; text-align:center;"></i>
                     <span class="fw-semibold">Reportes</span>
                 </a>
-                <a href="#pagos" class="d-flex align-items-center gap-3 px-3 py-2 text-decoration-none" style="color:#FFFDF6;">
-                    <i class="bi bi-credit-card fs-5" style="color:#D4AF37; width:22px; text-align:center;"></i>
+                <a href="#pagos" class="d-flex align-items-center gap-3 px-3 py-2 text-decoration-none" style="color:var(--ol-text);">
+                    <i class="bi bi-credit-card fs-5" style="color:var(--ol-gold); width:22px; text-align:center;"></i>
                     <span class="fw-semibold">Pagos</span>
                 </a>
-                <a href="#factura" class="d-flex align-items-center gap-3 px-3 py-2 text-decoration-none" style="color:#FFFDF6;">
-                    <i class="bi bi-receipt fs-5" style="color:#D4AF37; width:22px; text-align:center;"></i>
+                <a href="#factura" class="d-flex align-items-center gap-3 px-3 py-2 text-decoration-none" style="color:var(--ol-text);">
+                    <i class="bi bi-receipt fs-5" style="color:var(--ol-gold); width:22px; text-align:center;"></i>
                     <span class="fw-semibold">Factura</span>
                 </a>
 
                 <p class="text-uppercase small fw-semibold px-3 mt-3 mb-1"
-                   style="color:rgba(255,255,255,.35); font-size:.65rem; letter-spacing:1px;">Operación</p>
-                <a href="#devoluciones" class="d-flex align-items-center gap-3 px-3 py-2 text-decoration-none" style="color:#FFFDF6;">
-                    <i class="bi bi-arrow-counterclockwise fs-5" style="color:#D4AF37; width:22px; text-align:center;"></i>
+                   style="color:var(--ol-text-muted); font-size:.65rem; letter-spacing:1px;">Operación</p>
+                <a href="#devoluciones" class="d-flex align-items-center gap-3 px-3 py-2 text-decoration-none" style="color:var(--ol-text);">
+                    <i class="bi bi-arrow-counterclockwise fs-5" style="color:var(--ol-gold); width:22px; text-align:center;"></i>
                     <span class="fw-semibold">Devoluciones</span>
                 </a>
-                <a href="#inventario" class="d-flex align-items-center gap-3 px-3 py-2 text-decoration-none" style="color:#FFFDF6;">
-                    <i class="bi bi-boxes fs-5" style="color:#D4AF37; width:22px; text-align:center;"></i>
+                <a href="#inventario" class="d-flex align-items-center gap-3 px-3 py-2 text-decoration-none" style="color:var(--ol-text);">
+                    <i class="bi bi-boxes fs-5" style="color:var(--ol-gold); width:22px; text-align:center;"></i>
                     <span class="fw-semibold">Inventario</span>
                 </a>
             </div>
         </nav>
 
-        <!-- Pie del menú: cuenta + cerrar sesión -->
-        <div class="border-top p-3 d-flex align-items-center justify-content-between" style="border-color:rgba(255,255,255,.1)!important;">
-            <div class="d-flex align-items-center gap-2">
-                <span class="d-flex align-items-center justify-content-center rounded-circle fw-bold"
-                      style="width:34px; height:34px; background:rgba(212,175,55,.2); color:#D4AF37; font-size:.85rem;">
-                    <i class="bi bi-person-fill"></i>
-                </span>
-                <span class="small fw-semibold text-truncate" style="color:#FFFDF6; max-width:130px;" sec:authentication="name"></span>
-            </div>
-            <form th:action="@{/logout}" method="post" class="m-0">
-                <button type="submit" class="btn btn-sm fw-semibold text-nowrap" style="background:rgba(212,175,55,.2); color:#D4AF37;">
-                    <i class="bi bi-box-arrow-right me-1"></i>Salir
-                </button>
-            </form>
+        <!-- User footer -->
+        <div class="border-top p-3 d-flex align-items-center gap-2 sidebar-divider" style="border-color:var(--ol-border)!important;">
+            <img th:if="${usuarioActual != null and usuarioActual.fotoPerfil != null}"
+                 th:src="@{'/imagenes/perfiles/' + ${usuarioActual.fotoPerfil}}"
+                 class="avatar-ol" style="width:34px; height:34px;" alt="">
+            <span th:unless="${usuarioActual != null and usuarioActual.fotoPerfil != null}"
+                  class="avatar-ol-placeholder" style="width:34px; height:34px; font-size:.8rem;"
+                  th:text="${usuarioActual != null} ? ${#strings.substring(usuarioActual.nombre, 0, 1)} : 'U'"></span>
+            <span class="small fw-semibold text-truncate" style="color:var(--ol-white); max-width:130px;" sec:authentication="name"></span>
         </div>
     </div>
 </div>
 
-<!-- ════════════════════════════════════════════════════════════════
-     HEADER con el botón hamburguesa (3 rayas)
-     ════════════════════════════════════════════════════════════════ -->
-<header class="d-flex flex-wrap align-items-center justify-content-between px-4 py-2 gap-2"
-        style="background:#FFFDF6; border-bottom:1px solid #E6D9B8;">
+<!-- HEADER -->
+<header class="d-flex flex-wrap align-items-center justify-content-between px-3 px-md-4 py-2 gap-2 header-ol">
     <div class="d-flex align-items-center gap-3">
         <button class="btn p-0 border-0" type="button" data-bs-toggle="offcanvas"
-                data-bs-target="#adminSidebar" aria-controls="adminSidebar"
-                title="Abrir menú">
-            <span class="d-inline-flex flex-column gap-1 p-1 rounded" style="background:#F2E9D8;">
-                <span class="d-block" style="width:22px; height:3px; background:#241E14; border-radius:2px;"></span>
-                <span class="d-block" style="width:22px; height:3px; background:#241E14; border-radius:2px;"></span>
-                <span class="d-block" style="width:22px; height:3px; background:#241E14; border-radius:2px;"></span>
+                data-bs-target="#adminSidebar" aria-controls="adminSidebar" title="Abrir menú">
+            <span class="d-inline-flex flex-column gap-1 p-1 rounded" style="background:var(--ol-gray);">
+                <span class="d-block" style="width:22px; height:3px; background:var(--ol-gold); border-radius:2px;"></span>
+                <span class="d-block" style="width:22px; height:3px; background:var(--ol-gold); border-radius:2px;"></span>
+                <span class="d-block" style="width:22px; height:3px; background:var(--ol-gold); border-radius:2px;"></span>
             </span>
         </button>
-        <a th:href="@{/}" class="btn btn-sm fw-semibold" style="background:#F2E9D8; color:#241E14;">
+        <a th:href="@{/}" class="btn btn-sm fw-semibold btn-ol-dark">
             <i class="bi bi-shop me-1"></i>Tienda
         </a>
     </div>
-    <span class="fw-bold fs-5 d-flex align-items-center gap-2" style="color:#D4AF37; letter-spacing:1px;">
-        <img th:src="@{/marca/logo.png}" alt="Olimpic" style="height:32px; width:32px; object-fit:contain;">
-        OLIMPIC
-    </span>
-    <form th:action="@{/logout}" method="post">
-        <button type="submit" class="btn btn-sm fw-semibold" style="background:#F2E9D8; color:#241E14;">Cerrar sesión</button>
-    </form>
+
+    <div class="d-flex align-items-center gap-2">
+        <img th:src="@{/marca/logo.png}" alt="Olympic Store" style="height:28px; width:auto; object-fit:contain;">
+
+        <!-- Avatar dropdown -->
+        <div class="dropdown">
+            <a class="btn btn-sm d-flex align-items-center gap-2 text-decoration-none dropdown-toggle"
+               href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false"
+               style="background:var(--ol-gray); color:var(--ol-text); border:1px solid var(--ol-border); border-radius:50px; padding:4px 12px 4px 4px;">
+                <img th:if="${usuarioActual != null and usuarioActual.fotoPerfil != null}"
+                     th:src="@{'/imagenes/perfiles/' + ${usuarioActual.fotoPerfil}}"
+                     class="avatar-ol" style="width:30px; height:30px;" alt="">
+                <span th:unless="${usuarioActual != null and usuarioActual.fotoPerfil != null}"
+                      class="avatar-ol-placeholder" style="width:30px; height:30px; font-size:.7rem;"
+                      th:text="${usuarioActual != null} ? ${#strings.substring(usuarioActual.nombre, 0, 1)} : 'U'"></span>
+                <span class="d-none d-md-inline small fw-semibold text-truncate" style="max-width:100px; color:var(--ol-text);"
+                      sec:authentication="name"></span>
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end dropdown-menu-ol mt-2">
+                <li>
+                    <div class="px-3 py-2 border-bottom" style="border-color:var(--ol-border)!important;">
+                        <p class="small fw-bold mb-0" style="color:var(--ol-white);" sec:authentication="name"></p>
+                        <p class="small mb-0" style="color:var(--ol-text-muted);" sec:authentication="name"></p>
+                    </div>
+                </li>
+                <li><a class="dropdown-item" th:href="@{/admin}"><i class="bi bi-house-door me-2"></i>Mi panel</a></li>
+                <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#modalFotoPerfilAdmin"><i class="bi bi-camera me-2"></i>Cambiar foto</a></li>
+                <li><hr class="dropdown-divider"></li>
+                <li>
+                    <form th:action="@{/logout}" method="post" class="m-0">
+                        <button type="submit" class="dropdown-item" style="color:var(--ol-danger);">
+                            <i class="bi bi-box-arrow-right me-2"></i>Cerrar sesión
+                        </button>
+                    </form>
+                </li>
+            </ul>
+        </div>
+    </div>
 </header>
 
-<!-- Bootstrap JS (offcanvas) — necesario para el menú lateral -->
+<!-- Modal foto de perfil (admin) -->
+<div class="modal fade" id="modalFotoPerfilAdmin" tabindex="-1" aria-labelledby="modalFotoPerfilAdminLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" style="background:var(--ol-card); border:1px solid var(--ol-border); border-radius:18px;">
+            <div class="modal-header border-0 pb-0">
+                <h5 class="modal-title fw-bold" id="modalFotoPerfilAdminLabel" style="color:var(--ol-white);">
+                    <i class="bi bi-camera me-2" style="color:var(--ol-gold);"></i>Foto de perfil
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body">
+                <div class="text-center mb-3">
+                    <img th:if="${usuarioActual != null and usuarioActual.fotoPerfil != null}"
+                         th:src="@{'/imagenes/perfiles/' + ${usuarioActual.fotoPerfil}}"
+                         class="avatar-ol-lg mb-2" alt="Foto actual">
+                    <div th:unless="${usuarioActual != null and usuarioActual.fotoPerfil != null}"
+                         class="avatar-ol-placeholder-lg mx-auto mb-2"
+                         th:text="${usuarioActual != null} ? ${#strings.substring(usuarioActual.nombre, 0, 1)} : 'U'"></div>
+                    <p class="small text-ol-muted mb-0">Foto actual</p>
+                </div>
+                <form th:action="@{/perfil/foto}" method="post" enctype="multipart/form-data">
+                    <div class="mb-3">
+                        <label for="archivoFotoAdmin" class="foto-upload-zone d-block">
+                            <i class="bi bi-cloud-arrow-up fs-2 d-block mb-2" style="color:var(--ol-gold);"></i>
+                            <span class="fw-semibold" style="color:var(--ol-text);">Toca para seleccionar una imagen</span>
+                            <div class="small text-ol-muted mt-1">JPG, PNG o WEBP · Max 5MB</div>
+                        </label>
+                        <input type="file" id="archivoFotoAdmin" name="archivoFoto" accept=".jpg,.jpeg,.png,.webp" class="d-none"
+                               onchange="if(this.files&&this.files[0]){var r=new FileReader();r.onload=function(e){document.getElementById('previewFotoAdmin').src=e.target.result;document.getElementById('previewFotoAdmin').classList.remove('d-none');document.getElementById('uploadPlaceholderAdmin').classList.add('d-none');};r.readAsDataURL(this.files[0]);}">
+                    </div>
+                    <div class="text-center mb-3">
+                        <img id="previewFotoAdmin" class="avatar-ol-lg d-none" alt="Preview">
+                        <div id="uploadPlaceholderAdmin"></div>
+                    </div>
+                    <button type="submit" class="btn w-100 fw-bold py-2 rounded-pill btn-ol-gold">
+                        <i class="bi bi-check-lg me-1"></i>GUARDAR FOTO
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script th:src="@{/js/tema.js}"></script>
 
 </th:block>
 

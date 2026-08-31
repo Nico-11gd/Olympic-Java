@@ -15,6 +15,7 @@ public class UsuarioResponse {
     private String correo;
     private Rol rol;
     private Boolean activo;
+    private String fotoPerfil;
     private LocalDateTime createdAt;
 
     public UsuarioResponse() {
@@ -27,6 +28,7 @@ public class UsuarioResponse {
         dto.setCorreo(usuario.getCorreo());
         dto.setRol(usuario.getRol());
         dto.setActivo(usuario.getActivo());
+        dto.setFotoPerfil(usuario.getFotoPerfil());
         dto.setCreatedAt(usuario.getCreatedAt());
         return dto;
     }
@@ -69,6 +71,14 @@ public class UsuarioResponse {
 
     public void setActivo(Boolean activo) {
         this.activo = activo;
+    }
+
+    public String getFotoPerfil() {
+        return fotoPerfil;
+    }
+
+    public void setFotoPerfil(String fotoPerfil) {
+        this.fotoPerfil = fotoPerfil;
     }
 
     public LocalDateTime getCreatedAt() {

@@ -3,22 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Productos - Panel Olimpic</title>
+    <title>Productos - Panel Olympic</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
-    <style>
-        .modal-css { display: none; position: fixed; inset: 0; z-index: 1050;
-            background: rgba(36,30,20,.55); align-items: center; justify-content: center; padding: 16px; }
-        .modal-css:target { display: flex; }
-        .modal-css-box { background: #FFFDF6; border-radius: 18px; width: 100%; max-width: 560px;
-            max-height: 88vh; overflow-y: auto; padding: 28px; position: relative; }
-        .modal-css-close { position: absolute; top: 20px; right: 20px; color: #241E14;
-            text-decoration: none; font-size: 1.6rem; line-height: 1; }
-        .campo-icono { background: #FBF3DC; border: 1px solid #E6D9B8; }
-        .dropzone-imagen { background: #FBF3DC; border: 1px solid #D4AF37; cursor: pointer; }
-    </style>
+    <link th:href="@{/css/olympic.css}" rel="stylesheet">
+    <script th:src="@{/js/tema-head.js}"></script>
 </head>
-<body style="background:#F0F2F5;">
+<body>
 
 <div th:replace="~{fragments/admin-header :: admin-header(currentPage='productos')}"></div>
 
@@ -27,15 +18,15 @@
     <div th:if="${mensaje}" class="alert alert-success" th:text="${mensaje}"></div>
 
     <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
-        <h3 class="fw-bold mb-0" style="color:#241E14;">Productos</h3>
+        <h3 class="fw-bold mb-0" style="color:var(--ol-white);">Productos</h3>
 
         <form th:action="@{/admin/productos}" method="get" class="d-flex flex-wrap gap-2">
             <input type="hidden" name="estado" th:value="${estadoSeleccionado}">
             <input type="search" name="q" th:value="${busqueda}" class="form-control" style="min-width:160px; flex:1 1 160px;" placeholder="Buscar...">
-            <button type="submit" class="btn btn-outline-secondary">
+            <button type="submit" class="btn btn-ol-dark">
                 <i class="bi bi-search"></i>
             </button>
-            <a href="#modal-nuevo" class="btn fw-bold text-nowrap" style="background:#D4AF37; color:#241E14;">
+            <a href="#modal-nuevo" class="btn fw-bold text-nowrap btn-ol-gold">
                 <i class="bi bi-plus-lg"></i> Nuevo
             </a>
         </form>
@@ -44,34 +35,34 @@
     <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
         <div class="d-flex flex-wrap gap-2">
             <a th:href="@{/admin/productos(estado='todos', q=${busqueda})}" class="btn btn-sm rounded-pill fw-semibold"
-               th:style="${estadoSeleccionado == 'todos'} ? 'background:#241E14; color:#FFFDF6;' : 'background:#FFFFFF; color:#666; border:1px solid #ddd;'">
+               th:classappend="${estadoSeleccionado == 'todos'} ? 'pill-ol-active' : 'pill-ol-inactive'">
                 <i class="bi bi-grid"></i> Todos
             </a>
             <a th:href="@{/admin/productos(estado='activos', q=${busqueda})}" class="btn btn-sm rounded-pill fw-semibold"
-               th:style="${estadoSeleccionado == 'activos'} ? 'background:#241E14; color:#FFFDF6;' : 'background:#FFFFFF; color:#666; border:1px solid #ddd;'">
+               th:classappend="${estadoSeleccionado == 'activos'} ? 'pill-ol-active' : 'pill-ol-inactive'">
                 <i class="bi bi-check-circle"></i> Activos
             </a>
             <a th:href="@{/admin/productos(estado='inactivos', q=${busqueda})}" class="btn btn-sm rounded-pill fw-semibold"
-               th:style="${estadoSeleccionado == 'inactivos'} ? 'background:#241E14; color:#FFFDF6;' : 'background:#FFFFFF; color:#666; border:1px solid #ddd;'">
+               th:classappend="${estadoSeleccionado == 'inactivos'} ? 'pill-ol-active' : 'pill-ol-inactive'">
                 <i class="bi bi-x-circle"></i> Inactivos
             </a>
             <a th:href="@{/admin/productos(estado='bajo', q=${busqueda})}" class="btn btn-sm rounded-pill fw-semibold"
-               th:style="${estadoSeleccionado == 'bajo'} ? 'background:#241E14; color:#FFFDF6;' : 'background:#FFFFFF; color:#666; border:1px solid #ddd;'">
+               th:classappend="${estadoSeleccionado == 'bajo'} ? 'pill-ol-active' : 'pill-ol-inactive'">
                 <i class="bi bi-exclamation-triangle"></i> Bajo stock
             </a>
         </div>
-        <span class="small text-muted" th:text="${productos.size()} + ' producto(s)'"></span>
+        <span class="small text-ol-muted" th:text="${productos.size()} + ' producto(s)'"></span>
     </div>
 
-    <div th:if="${productos.isEmpty()}" class="text-center text-muted py-5">
+    <div th:if="${productos.isEmpty()}" class="text-center text-ol-muted py-5">
         <i class="bi bi-bag fs-1 d-block mb-2"></i>No se encontraron productos.
     </div>
 
-    <!-- Escritorio / tablet: tabla. Bootstrap la oculta en pantallas angostas (d-none d-md-block). -->
-    <div th:unless="${productos.isEmpty()}" class="table-responsive rounded-4 shadow-sm d-none d-md-block" style="background:#FFFDF6;">
+    <!-- Desktop: table -->
+    <div th:unless="${productos.isEmpty()}" class="table-responsive rounded-4 d-none d-md-block table-ol">
         <table class="table align-middle mb-0">
             <thead>
-            <tr class="small text-uppercase text-muted">
+            <tr class="small text-uppercase" style="color:var(--ol-text-muted);">
                 <th>Producto</th>
                 <th>Categoría</th>
                 <th>Precio</th>
@@ -85,19 +76,19 @@
                 <td>
                     <div class="d-flex align-items-center gap-2">
                         <img th:if="${p.imagenUrl != null}" th:src="@{${p.imagenUrl}}" style="width:48px; height:48px; object-fit:cover; border-radius:8px;" alt="">
-                        <div th:unless="${p.imagenUrl != null}" class="d-flex align-items-center justify-content-center bg-light" style="width:48px; height:48px; border-radius:8px;">
-                            <i class="bi bi-image text-muted"></i>
+                        <div th:unless="${p.imagenUrl != null}" class="d-flex align-items-center justify-content-center" style="width:48px; height:48px; border-radius:8px; background:var(--ol-gray);">
+                            <i class="bi bi-image text-ol-muted"></i>
                         </div>
                         <div>
-                            <p class="fw-semibold mb-0" style="color:#241E14;" th:text="${p.nombre}"></p>
-                            <p class="small text-muted mb-0" th:text="${p.codigo ?: '—'}"></p>
+                            <p class="fw-semibold mb-0" style="color:var(--ol-white);" th:text="${p.nombre}"></p>
+                            <p class="small mb-0" style="color:var(--ol-text-muted);" th:text="${p.codigo ?: '—'}"></p>
                         </div>
                     </div>
                 </td>
-                <td th:text="${p.categoria ?: '—'}"></td>
-                <td class="fw-semibold" th:text="'$' + ${#numbers.formatDecimal(p.precio, 0, 'COMMA', 0, 'POINT')}"></td>
+                <td style="color:var(--ol-text-muted);" th:text="${p.categoria ?: '—'}"></td>
+                <td class="fw-semibold" style="color:var(--ol-gold);" th:text="'$' + ${#numbers.formatDecimal(p.precio, 0, 'COMMA', 0, 'POINT')}"></td>
                 <td>
-                    <span class="badge rounded-pill" th:classappend="${p.stock <= 5} ? 'text-bg-danger' : 'text-bg-light border'" th:text="${p.stock}"></span>
+                    <span class="badge rounded-pill" th:classappend="${p.stock <= 5} ? 'text-bg-danger' : 'text-bg-secondary'" th:text="${p.stock}"></span>
                 </td>
                 <td>
                     <span th:if="${p.activo}" class="badge rounded-pill text-bg-success"><i class="bi bi-circle-fill" style="font-size:.5rem;"></i> Activo</span>
@@ -112,7 +103,7 @@
                             <i class="bi" th:classappend="${p.activo} ? 'bi-lock' : 'bi-unlock'"></i>
                         </button>
                     </form>
-                    <a th:href="'#modal-editar-' + ${p.id}" class="btn btn-sm" style="background:rgba(21,101,192,.15); color:#1565C0;">
+                    <a th:href="'#modal-editar-' + ${p.id}" class="btn btn-sm" style="background:rgba(21,101,192,.15); color:#64B5F6;">
                         <i class="bi bi-pencil"></i>
                     </a>
                 </td>
@@ -121,32 +112,32 @@
         </table>
     </div>
 
-    <!-- Celular: tarjetas apiladas en vez de tabla (d-md-none = solo se ve por debajo de "md"). -->
+    <!-- Mobile: cards -->
     <div th:unless="${productos.isEmpty()}" class="d-md-none d-flex flex-column gap-2">
-        <div th:each="p : ${productos}" class="card border-0 shadow-sm" style="background:#FFFDF6;">
+        <div th:each="p : ${productos}" class="card card-ol">
             <div class="card-body d-flex gap-3 p-2">
                 <img th:if="${p.imagenUrl != null}" th:src="@{${p.imagenUrl}}" style="width:64px; height:64px; object-fit:cover; border-radius:10px; flex-shrink:0;" alt="">
-                <div th:unless="${p.imagenUrl != null}" class="d-flex align-items-center justify-content-center bg-light" style="width:64px; height:64px; border-radius:10px; flex-shrink:0;">
-                    <i class="bi bi-image text-muted"></i>
+                <div th:unless="${p.imagenUrl != null}" class="d-flex align-items-center justify-content-center" style="width:64px; height:64px; border-radius:10px; flex-shrink:0; background:var(--ol-gray);">
+                    <i class="bi bi-image text-ol-muted"></i>
                 </div>
 
                 <div class="flex-grow-1" style="min-width:0;">
                     <div class="d-flex justify-content-between align-items-start gap-2">
                         <div style="min-width:0;">
-                            <p class="fw-semibold mb-0 text-truncate" style="color:#241E14;" th:text="${p.nombre}"></p>
-                            <p class="small text-muted mb-1" th:text="${p.categoria ?: '—'} + ' · ' + (${p.codigo} ?: '—')"></p>
+                            <p class="fw-semibold mb-0 text-truncate" style="color:var(--ol-white);" th:text="${p.nombre}"></p>
+                            <p class="small mb-1" style="color:var(--ol-text-muted);" th:text="${p.categoria ?: '—'} + ' · ' + (${p.codigo} ?: '—')"></p>
                         </div>
                         <span th:if="${p.activo}" class="badge rounded-pill text-bg-success text-nowrap">Activo</span>
                         <span th:unless="${p.activo}" class="badge rounded-pill text-bg-secondary text-nowrap">Inactivo</span>
                     </div>
 
                     <div class="d-flex flex-wrap gap-1 mb-2">
-                        <span class="badge text-bg-light border" th:text="'$' + ${#numbers.formatDecimal(p.precio, 0, 'COMMA', 0, 'POINT')}"></span>
-                        <span class="badge rounded-pill" th:classappend="${p.stock <= 5} ? 'text-bg-danger' : 'text-bg-light border'" th:text="'Stock: ' + ${p.stock}"></span>
+                        <span class="badge" style="background:var(--ol-gray); color:var(--ol-gold);" th:text="'$' + ${#numbers.formatDecimal(p.precio, 0, 'COMMA', 0, 'POINT')}"></span>
+                        <span class="badge rounded-pill" th:classappend="${p.stock <= 5} ? 'text-bg-danger' : 'text-bg-secondary'" th:text="'Stock: ' + ${p.stock}"></span>
                     </div>
 
                     <div class="d-flex gap-2">
-                        <a th:href="'#modal-editar-' + ${p.id}" class="btn btn-sm flex-grow-1" style="background:rgba(21,101,192,.15); color:#1565C0;">
+                        <a th:href="'#modal-editar-' + ${p.id}" class="btn btn-sm flex-grow-1" style="background:rgba(21,101,192,.15); color:#64B5F6;">
                             <i class="bi bi-pencil me-1"></i>Editar
                         </a>
                         <form th:action="@{/admin/productos/{id}/estado(id=${p.id})}" method="post">
@@ -167,32 +158,31 @@
 <div id="modal-nuevo" class="modal-css">
     <div class="modal-css-box">
         <a href="#" class="modal-css-close">&times;</a>
-        <h5 class="fw-bold mb-0" style="color:#241E14;">Nuevo producto</h5>
-        <p class="text-muted small mb-3">Completa todos los campos obligatorios</p>
+        <h5 class="fw-bold mb-0" style="color:var(--ol-white);">Nuevo producto</h5>
+        <p class="small mb-3" style="color:var(--ol-text-muted);">Completa todos los campos obligatorios</p>
 
         <div th:if="${productoFormError != null and productoFormId == null}" class="alert alert-danger py-2 small" th:text="${productoFormError}"></div>
 
         <form id="form-nuevo" th:action="@{/admin/productos/nuevo}" method="post" enctype="multipart/form-data"
               th:with="d=${productoFormNuevo}" class="needs-validation" novalidate>
 
-            <!-- INFORMACION BASICA -->
-            <p class="fw-bold small text-uppercase mb-2 pb-2 border-bottom" style="color:#241E14; border-color:#E6D9B8!important;">
-                <i class="bi bi-card-text me-1" style="color:#D4AF37;"></i>Información básica
+            <p class="fw-bold small text-uppercase mb-2 pb-2 border-bottom" style="color:var(--ol-white); border-color:var(--ol-border)!important;">
+                <i class="bi bi-card-text me-1" style="color:var(--ol-gold);"></i>Información básica
             </p>
 
             <div class="mb-3">
                 <label class="form-label small fw-semibold">Nombre <span class="text-danger">*</span></label>
                 <div class="input-group">
-                    <span class="input-group-text campo-icono"><i class="bi bi-tag text-muted"></i></span>
+                    <span class="input-group-text campo-icono"><i class="bi bi-tag"></i></span>
                     <input type="text" name="nombre" th:value="${d.nombre}" class="form-control campo-icono" placeholder="Ej: Camiseta deportiva" required minlength="2">
                 </div>
                 <div class="invalid-feedback">Mínimo 2 caracteres.</div>
             </div>
 
             <div class="mb-3">
-                <label class="form-label small fw-semibold">Código (SKU) <span class="text-muted fw-normal">· opcional</span></label>
+                <label class="form-label small fw-semibold">Código (SKU) <span style="color:var(--ol-text-muted);">· opcional</span></label>
                 <div class="input-group">
-                    <span class="input-group-text campo-icono"><i class="bi bi-upc-scan text-muted"></i></span>
+                    <span class="input-group-text campo-icono"><i class="bi bi-upc-scan"></i></span>
                     <input type="text" name="codigo" th:value="${d.codigo}" class="form-control campo-icono" placeholder="Déjalo vacío para generarlo solo">
                 </div>
             </div>
@@ -211,20 +201,18 @@
                 </select>
             </div>
 
-            <!-- IMAGENES -->
-            <p class="fw-bold small text-uppercase mb-2 pb-2 border-bottom mt-4" style="color:#241E14; border-color:#E6D9B8!important;">
-                <i class="bi bi-images me-1" style="color:#D4AF37;"></i>Imágenes
+            <p class="fw-bold small text-uppercase mb-2 pb-2 border-bottom mt-4" style="color:var(--ol-white); border-color:var(--ol-border)!important;">
+                <i class="bi bi-images me-1" style="color:var(--ol-gold);"></i>Imágenes
             </p>
             <label for="archivoImagen-nuevo" class="d-block text-center p-4 rounded-4 dropzone-imagen mb-3">
-                <i class="bi bi-image fs-1 text-muted d-block mb-2"></i>
-                <span class="fw-semibold" style="color:#241E14;">Toca para seleccionar una o varias imágenes</span>
-                <div class="small text-muted mt-1">JPG, PNG o WEBP · Máx 5MB cada una · La primera será la portada</div>
+                <i class="bi bi-image fs-1 d-block mb-2" style="color:var(--ol-text-muted);"></i>
+                <span class="fw-semibold" style="color:var(--ol-white);">Toca para seleccionar una o varias imágenes</span>
+                <div class="small mt-1" style="color:var(--ol-text-muted);">JPG, PNG o WEBP · Máx 5MB cada una · La primera será la portada</div>
             </label>
             <input type="file" id="archivoImagen-nuevo" name="archivoImagen" accept=".jpg,.jpeg,.png,.webp" class="d-none" multiple>
 
-            <!-- VARIACIONES -->
-            <p class="fw-bold small text-uppercase mb-2 pb-2 border-bottom mt-4" style="color:#241E14; border-color:#E6D9B8!important;">
-                <i class="bi bi-palette me-1" style="color:#D4AF37;"></i>Variaciones
+            <p class="fw-bold small text-uppercase mb-2 pb-2 border-bottom mt-4" style="color:var(--ol-white); border-color:var(--ol-border)!important;">
+                <i class="bi bi-palette me-1" style="color:var(--ol-gold);"></i>Variaciones
             </p>
 
             <div class="mb-3">
@@ -234,75 +222,66 @@
                     <option th:each="promo : ${promociones}" th:value="${promo.id}"
                             th:text="${promo.nombre} + ' (' + ${#numbers.formatDecimal(promo.valor, 0, 'COMMA', 0, 'POINT')} + '%)'"></option>
                 </select>
-                <div class="small text-muted mt-1">El precio con descuento se calcula automáticamente según la promoción seleccionada.</div>
             </div>
 
-            <!-- Tallas (opcional: déjalo vacío si el producto no tiene tallas) -->
             <div class="mb-3">
                 <label class="form-label small fw-semibold">Tallas (separadas por coma)</label>
                 <input type="text" name="talla" class="form-control campo-icono" th:value="${d.talla}" placeholder="Ej: S,M,L,XL">
-                <div class="small text-muted mt-1">Si es un accesorio o no usa tallas, deja este campo vacío.</div>
             </div>
 
-            <!-- Colores -->
             <div class="mb-3">
                 <label class="form-label small fw-semibold">Colores (separados por coma)</label>
                 <input type="text" name="color" class="form-control campo-icono" placeholder="Negro,Blanco" th:value="${d.color}">
             </div>
 
-            <!-- PRECIO E INVENTARIO -->
-            <p class="fw-bold small text-uppercase mb-2 pb-2 border-bottom mt-4" style="color:#241E14; border-color:#E6D9B8!important;">
-                <i class="bi bi-currency-dollar me-1" style="color:#D4AF37;"></i>Precio e inventario
+            <p class="fw-bold small text-uppercase mb-2 pb-2 border-bottom mt-4" style="color:var(--ol-white); border-color:var(--ol-border)!important;">
+                <i class="bi bi-currency-dollar me-1" style="color:var(--ol-gold);"></i>Precio e inventario
             </p>
             <div class="row">
                 <div class="col-6 mb-3">
                     <label class="form-label small fw-semibold">Precio <span class="text-danger">*</span></label>
                     <input type="number" step="0.01" min="0.01" name="precio" th:value="${d.precio}" class="form-control campo-icono" required>
-                    <div class="invalid-feedback">El precio debe ser mayor a $0.01.</div>
                 </div>
                 <div class="col-6 mb-3">
                     <label class="form-label small fw-semibold">Stock <span class="text-danger">*</span></label>
                     <input type="number" min="0" name="stock" th:value="${d.stock}" class="form-control campo-icono" required>
-                    <div class="invalid-feedback">El stock no puede ser negativo.</div>
                 </div>
             </div>
 
-            <button type="submit" class="btn w-100 fw-bold py-2 rounded-pill" style="background:#D4AF37; color:#241E14;">CREAR PRODUCTO</button>
+            <button type="submit" class="btn w-100 fw-bold py-2 rounded-pill btn-ol-gold">CREAR PRODUCTO</button>
         </form>
     </div>
 </div>
 
-<!-- ═══════════ MODALES: EDITAR PRODUCTO (uno por fila) ═══════════ -->
+<!-- ═══════════ MODALES: EDITAR PRODUCTO ═══════════ -->
 <div th:each="p : ${productos}">
     <div th:id="'modal-editar-' + ${p.id}" class="modal-css">
         <div class="modal-css-box" th:with="usarFlash=${productoFormId != null and productoFormId == p.id}">
             <a href="#" class="modal-css-close">&times;</a>
-            <h5 class="fw-bold mb-0" style="color:#241E14;">Editar producto</h5>
-            <p class="text-muted small mb-3">Modificando el producto #<span th:text="${p.id}"></span></p>
+            <h5 class="fw-bold mb-0" style="color:var(--ol-white);">Editar producto</h5>
+            <p class="small mb-3" style="color:var(--ol-text-muted);">Modificando el producto #<span th:text="${p.id}"></span></p>
 
             <div th:if="${usarFlash and productoFormError != null}" class="alert alert-danger py-2 small" th:text="${productoFormError}"></div>
 
             <form th:id="'form-editar-' + ${p.id}" th:action="@{/admin/productos/{id}/editar(id=${p.id})}" method="post" enctype="multipart/form-data" class="needs-validation" novalidate>
 
-                <!-- INFORMACION BASICA -->
-                <p class="fw-bold small text-uppercase mb-2 pb-2 border-bottom" style="color:#241E14; border-color:#E6D9B8!important;">
-                    <i class="bi bi-card-text me-1" style="color:#D4AF37;"></i>Información básica
+                <p class="fw-bold small text-uppercase mb-2 pb-2 border-bottom" style="color:var(--ol-white); border-color:var(--ol-border)!important;">
+                    <i class="bi bi-card-text me-1" style="color:var(--ol-gold);"></i>Información básica
                 </p>
 
                 <div class="mb-3">
                     <label class="form-label small fw-semibold">Nombre <span class="text-danger">*</span></label>
                     <div class="input-group">
-                        <span class="input-group-text campo-icono"><i class="bi bi-tag text-muted"></i></span>
+                        <span class="input-group-text campo-icono"><i class="bi bi-tag"></i></span>
                         <input type="text" name="nombre" class="form-control campo-icono" required minlength="2"
                                th:value="${usarFlash} ? ${productoForm.nombre} : ${p.nombre}">
                     </div>
-                    <div class="invalid-feedback">Mínimo 2 caracteres.</div>
                 </div>
 
                 <div class="mb-3">
-                    <label class="form-label small fw-semibold">Código (SKU) <span class="text-muted fw-normal">· opcional</span></label>
+                    <label class="form-label small fw-semibold">Código (SKU) <span style="color:var(--ol-text-muted);">· opcional</span></label>
                     <div class="input-group">
-                        <span class="input-group-text campo-icono"><i class="bi bi-upc-scan text-muted"></i></span>
+                        <span class="input-group-text campo-icono"><i class="bi bi-upc-scan"></i></span>
                         <input type="text" name="codigo" class="form-control campo-icono"
                                placeholder="Déjalo vacío para conservarlo"
                                th:value="${usarFlash} ? ${productoForm.codigo} : ${p.codigo}">
@@ -324,31 +303,30 @@
                     </select>
                 </div>
 
-                <!-- IMAGENES -->
-                <p class="fw-bold small text-uppercase mb-2 pb-2 border-bottom mt-4" style="color:#241E14; border-color:#E6D9B8!important;">
-                    <i class="bi bi-images me-1" style="color:#D4AF37;"></i>Imágenes
+                <p class="fw-bold small text-uppercase mb-2 pb-2 border-bottom mt-4" style="color:var(--ol-white); border-color:var(--ol-border)!important;">
+                    <i class="bi bi-images me-1" style="color:var(--ol-gold);"></i>Imágenes
                 </p>
-                <label th:for="'archivoImagen-' + ${p.id}" class="d-block position-relative rounded-4 overflow-hidden mb-1" style="cursor:pointer; height:140px; background:#FBF3DC; border:1px solid #D4AF37;">
+                <label th:for="'archivoImagen-' + ${p.id}" class="d-block position-relative rounded-4 overflow-hidden mb-1"
+                       style="cursor:pointer; height:140px; background:var(--ol-gray); border:1px solid var(--ol-border);">
                     <img th:id="'preview-editar-' + ${p.id}"
                          th:src="${p.imagenUrl != null} ? @{${p.imagenUrl}} : null"
                          th:class="${p.imagenUrl != null} ? 'w-100 h-100' : 'w-100 h-100 d-none'"
                          style="object-fit:cover;" alt="">
                     <div th:id="'placeholder-editar-' + ${p.id}" th:unless="${p.imagenUrl != null}"
                          class="d-flex align-items-center justify-content-center h-100">
-                        <i class="bi bi-camera fs-2 text-muted"></i>
+                        <i class="bi bi-camera fs-2 text-ol-muted"></i>
                     </div>
                     <div class="position-absolute bottom-0 start-0 end-0 text-center py-2 small fw-semibold"
-                         style="background:rgba(36,30,20,.55); color:#FFFDF6;">
+                         style="background:rgba(0,0,0,.6); color:var(--ol-white);">
                         <i class="bi bi-camera me-1"></i>Cambiar imágenes
                     </div>
                 </label>
                 <input type="file" th:id="'archivoImagen-' + ${p.id}" name="archivoImagen" accept=".jpg,.jpeg,.png,.webp" class="d-none" multiple
                        th:attr="onchange=|previsualizarImagenProducto(this, 'preview-editar-${p.id}', 'placeholder-editar-${p.id}')|">
-                <p class="small text-muted mb-3">Déjalo sin tocar para conservar las fotos actuales.</p>
+                <p class="small mb-3" style="color:var(--ol-text-muted);">Déjalo sin tocar para conservar las fotos actuales.</p>
 
-                <!-- VARIACIONES -->
-                <p class="fw-bold small text-uppercase mb-2 pb-2 border-bottom mt-4" style="color:#241E14; border-color:#E6D9B8!important;">
-                    <i class="bi bi-palette me-1" style="color:#D4AF37;"></i>Variaciones
+                <p class="fw-bold small text-uppercase mb-2 pb-2 border-bottom mt-4" style="color:var(--ol-white); border-color:var(--ol-border)!important;">
+                    <i class="bi bi-palette me-1" style="color:var(--ol-gold);"></i>Variaciones
                 </p>
 
                 <div class="mb-3">
@@ -359,52 +337,45 @@
                                 th:text="${promo.nombre} + ' (' + ${#numbers.formatDecimal(promo.valor, 0, 'COMMA', 0, 'POINT')} + '%)'"
                                 th:selected="${(usarFlash ? productoForm.promocionId : p.promocionId) == promo.id}"></option>
                     </select>
-                    <div class="small text-muted mt-1">El precio con descuento se calcula automáticamente según la promoción seleccionada.</div>
                 </div>
 
-                <!-- Tallas (opcional: déjalo vacío si el producto no tiene tallas) -->
                 <div class="mb-3">
                     <label class="form-label small fw-semibold">Tallas (separadas por coma)</label>
                     <input type="text" name="talla" class="form-control campo-icono" placeholder="Ej: S,M,L,XL"
                            th:value="${usarFlash} ? ${productoForm.talla} : ${#strings.listJoin(p.tallas, ',')}">
-                    <div class="small text-muted mt-1">Si es un accesorio o no usa tallas, deja este campo vacío.</div>
                 </div>
 
-                <!-- Colores -->
                 <div class="mb-3">
                     <label class="form-label small fw-semibold">Colores (separados por coma)</label>
                     <input type="text" name="color" class="form-control campo-icono"
                            th:value="${usarFlash} ? ${productoForm.color} : ${#strings.listJoin(p.colores, ',')}">
                 </div>
 
-                <!-- PRECIO E INVENTARIO -->
-                <p class="fw-bold small text-uppercase mb-2 pb-2 border-bottom mt-4" style="color:#241E14; border-color:#E6D9B8!important;">
-                    <i class="bi bi-currency-dollar me-1" style="color:#D4AF37;"></i>Precio e inventario
+                <p class="fw-bold small text-uppercase mb-2 pb-2 border-bottom mt-4" style="color:var(--ol-white); border-color:var(--ol-border)!important;">
+                    <i class="bi bi-currency-dollar me-1" style="color:var(--ol-gold);"></i>Precio e inventario
                 </p>
                 <div class="row">
                     <div class="col-6 mb-3">
                         <label class="form-label small fw-semibold">Precio <span class="text-danger">*</span></label>
                         <input type="number" step="0.01" min="0.01" name="precio" class="form-control campo-icono" required
                                th:value="${usarFlash} ? ${productoForm.precio} : ${p.precio}">
-                        <div class="invalid-feedback">El precio debe ser mayor a $0.01.</div>
                     </div>
                     <div class="col-6 mb-3">
                         <label class="form-label small fw-semibold">Stock <span class="text-danger">*</span></label>
                         <input type="number" min="0" name="stock" class="form-control campo-icono" required
                                th:value="${usarFlash} ? ${productoForm.stock} : ${p.stock}">
-                        <div class="invalid-feedback">El stock no puede ser negativo.</div>
                     </div>
                 </div>
 
-                <!-- ESTADO -->
-                <div class="d-flex align-items-center gap-2 mb-4 pt-2 border-top" style="border-color:#E6D9B8!important;">
+                <div class="d-flex align-items-center gap-2 mb-4 pt-2 border-top" style="border-color:var(--ol-border)!important;">
                     <input type="checkbox" name="activo" value="true" class="form-check-input mt-0" th:id="'activo-' + ${p.id}"
-                           th:checked="${usarFlash} ? ${productoForm.activo} : ${p.activo}">
+                           th:checked="${usarFlash} ? ${productoForm.activo} : ${p.activo}"
+                           style="accent-color:var(--ol-gold);">
                     <input type="hidden" name="_activo" value="on">
-                    <label class="form-check-label small fw-semibold" th:for="'activo-' + ${p.id}">Producto activo (visible en la tienda)</label>
+                    <label class="form-check-label small fw-semibold" th:for="'activo-' + ${p.id}" style="color:var(--ol-text);">Producto activo (visible en la tienda)</label>
                 </div>
 
-                <button type="submit" class="btn w-100 fw-bold py-2 rounded-pill" style="background:#D4AF37; color:#241E14;">GUARDAR CAMBIOS</button>
+                <button type="submit" class="btn w-100 fw-bold py-2 rounded-pill btn-ol-gold">GUARDAR CAMBIOS</button>
             </form>
         </div>
     </div>

@@ -74,6 +74,15 @@ public class PageController {
         model.addAttribute("carritoDescuento", carritoService.calcularDescuentoTotal(carrito));
         model.addAttribute("carritoIVA", carritoService.calcularIVA(carrito));
         model.addAttribute("carritoTotal", carritoService.calcularTotal(carrito));
+
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth != null && auth.isAuthenticated() && !(auth instanceof AnonymousAuthenticationToken)) {
+            String correo = auth.getName();
+            Usuario usuarioActual = usuarioRepository.findByCorreo(correo).orElse(null);
+            model.addAttribute("usuarioActual", usuarioActual);
+        } else {
+            model.addAttribute("usuarioActual", null);
+        }
     }
 
     // Catálogo público (equivalente a app/(tabs)/catalogo.tsx): cualquiera lo ve,

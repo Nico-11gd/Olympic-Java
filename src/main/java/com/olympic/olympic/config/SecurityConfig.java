@@ -51,7 +51,8 @@ public class SecurityConfig {
                                 "/login", "/registro",
                                 "/recuperar-password", "/recuperar-password/**",
                                 "/carrito", "/carrito/**",
-                                "/imagenes/**", "/marca/**", "/favicon.ico")
+                                "/imagenes/**", "/marca/**", "/favicon.ico",
+                                "/css/**")
                         .permitAll()
                         // El dashboard (/admin) es la home por rol: cualquier usuario
                         // autenticado lo ve y se adapta a su rol. El resto del panel

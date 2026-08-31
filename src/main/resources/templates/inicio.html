@@ -3,78 +3,82 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Olimpic Store</title>
+    <title>Olympic Store</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <link th:href="@{/css/olympic.css}" rel="stylesheet">
+    <script th:src="@{/js/tema-head.js}"></script>
 </head>
-<body style="background:#F2E9D8;">
+<body>
 
 <div th:replace="~{fragments/navbar :: navbar}"></div>
 
-<div class="container-fluid px-3 px-md-4 px-lg-5">
-
-    <!-- CATEGORÍAS -->
-    <h6 class="fw-bold text-uppercase mt-3 mb-3 pb-2" style="color:#241E14; letter-spacing:1px; border-bottom:3px solid #D4AF37;">Categorías</h6>
-    <div class="d-flex flex-wrap gap-2 mb-4">
-        <a th:href="@{/}" class="btn btn-sm rounded-pill fw-semibold"
-           th:style="${categoriaSeleccionada == null} ? 'background:#241E14; color:#FFFDF6;' : 'background:#FFFDF6; border:1.5px solid #D4AF37; color:#8A6D1A;'">
-            Todos
-        </a>
-        <a th:each="cat : ${categorias}"
-           th:href="@{/(categoria=${cat.id})}"
-           th:text="${cat.nombre}"
-           class="btn btn-sm rounded-pill fw-semibold"
-           th:style="${categoriaSeleccionada != null and categoriaSeleccionada == cat.id} ? 'background:#241E14; color:#FFFDF6;' : 'background:#FFFDF6; border:1.5px solid #D4AF37; color:#8A6D1A;'">
+<!-- ═══════ HERO (static, sin carrusel) ═══════ -->
+<section class="hero-ol" id="hero">
+    <div class="hero-bg"></div>
+    <div class="hero-overlay"></div>
+    <div class="hero-content d-flex flex-column align-items-center justify-content-center text-center px-3"
+         style="min-height:100vh;">
+        <img th:src="@{/marca/logo.png}" alt="Olympic Store"
+             style="height:180px; width:auto; object-fit:contain; filter:drop-shadow(0 2px 10px rgba(0,0,0,.3));" class="mb-4">
+        <a th:href="@{/#productos}" class="btn btn-lg fw-bold px-5 rounded-pill btn-ol-gold"
+           style="letter-spacing:1px; box-shadow:0 4px 20px rgba(212,175,55,.4);">
+            <i class="bi bi-bag me-2"></i>VER COLECCIÓN
         </a>
     </div>
+</section>
+
+<!-- ═══════ PRODUCTS SECTION ═══════ -->
+<div id="productos" class="container-fluid px-3 px-md-4 px-lg-5 py-5" style="background:var(--ol-black);">
+
+    <!-- CATEGORÍAS -->
+    <!-- Eliminado: los filtros de categoría ahora están en el navbar -->
 
     <!-- BUSCADOR -->
     <form th:action="@{/}" method="get" id="catalogo" class="mb-4">
-        <div class="input-group">
-            <span class="input-group-text bg-white"><i class="bi bi-search text-muted"></i></span>
+        <div class="input-group" style="max-width:500px;">
+            <span class="input-group-text"><i class="bi bi-search"></i></span>
             <input type="search" name="q" th:value="${busqueda}" class="form-control" placeholder="Buscar productos...">
-            <button type="submit" class="btn fw-semibold" style="background:#241E14; color:#FFFDF6;">Buscar</button>
+            <button type="submit" class="btn btn-ol-gold fw-semibold">Buscar</button>
         </div>
     </form>
 
     <!-- PRODUCTOS -->
-    <h6 class="fw-bold text-uppercase mb-3 pb-2" style="color:#241E14; letter-spacing:1px; border-bottom:3px solid #D4AF37;">
+    <h6 class="heading-ol text-uppercase mb-3">
         <span th:if="${busqueda != null and !busqueda.isEmpty()}" th:text="'Resultados para: ' + ${busqueda}"></span>
         <span th:unless="${busqueda != null and !busqueda.isEmpty()}">Productos Destacados</span>
     </h6>
 
-    <div th:if="${productos.isEmpty()}" class="text-center text-muted py-5">
+    <div th:if="${productos.isEmpty()}" class="text-center text-ol-muted py-5">
         <i class="bi bi-search fs-1 d-block mb-2"></i>
         No se encontraron productos.
     </div>
 
     <div class="row d-flex flex-wrap justify-content-center g-3 mb-4">
         <div class="col-6 col-md-4 col-lg-3" th:each="p : ${productos}">
-            <a th:href="@{/producto(id=${p.id})}" class="card h-100 border-0 shadow-sm rounded-4 overflow-hidden text-decoration-none d-block">
-                <div class="ratio ratio-4x3" style="background:#FFF4D9;">
+            <a th:href="@{/producto(id=${p.id})}" class="card h-100 border-0 rounded-4 overflow-hidden text-decoration-none d-block product-card-ol">
+                <div class="ratio ratio-4x3 product-img-wrap position-relative">
                     <span th:if="${p.stock == 0}" class="badge bg-danger position-absolute m-2" style="z-index:2;">AGOTADO</span>
                     <img th:if="${p.imagenUrl != null}" th:src="@{${p.imagenUrl}}" class="w-100 h-100" style="object-fit:cover;" alt="">
                     <div th:unless="${p.imagenUrl != null}" class="d-flex align-items-center justify-content-center h-100">
-                        <i class="bi bi-bag text-muted fs-1"></i>
+                        <i class="bi bi-bag text-ol-muted fs-1"></i>
                     </div>
                 </div>
                 <div class="card-body p-2">
-                    <p class="text-uppercase small text-muted mb-1" style="font-size:.65rem;" th:text="${p.categoria ?: 'Sin categoría'}"></p>
-                    <p class="fw-bold mb-1" style="color:#241E14; font-size:.85rem;" th:text="${p.nombre}"></p>
+                    <p class="text-uppercase small text-ol-muted mb-1" style="font-size:.65rem;" th:text="${p.categoria ?: 'Sin categoría'}"></p>
+                    <p class="product-name mb-1" th:text="${p.nombre}"></p>
                     <div class="mb-1">
                         <span th:if="${p.precioPromocion != null}">
-                            <span class="fw-bold" style="color:#D4AF37;"
+                            <span class="product-price"
                                   th:text="'$' + ${#numbers.formatDecimal(p.precioPromocion, 0, 'COMMA', 0, 'POINT')}"></span>
-                            <span class="text-muted text-decoration-line-through small"
+                            <span class="text-ol-muted text-decoration-line-through small"
                                   th:text="'$' + ${#numbers.formatDecimal(p.precio, 0, 'COMMA', 0, 'POINT')}"></span>
                             <span class="badge bg-danger ms-1" th:text="'-' + ${p.descuentoPorcentaje} + '%'"></span>
                         </span>
-                        <span th:unless="${p.precioPromocion != null}" class="fw-bold" style="color:#D4AF37;"
+                        <span th:unless="${p.precioPromocion != null}" class="product-price"
                               th:text="'$' + ${#numbers.formatDecimal(p.precio, 0, 'COMMA', 0, 'POINT')}"></span>
                     </div>
-                    <span class="small fw-semibold text-uppercase" th:style="${p.stock == 0} ? 'color:#999;' : 'color:#8A6D1A;'">
-                        <i class="bi bi-box-arrow-up-right me-1"></i><span th:text="${p.stock == 0} ? 'Agotado' : 'Ver detalle'"></span>
-                    </span>
+                    <span class="product-link" th:text="${p.stock == 0} ? 'Agotado' : 'Ver detalle'"></span>
                 </div>
             </a>
         </div>
@@ -82,16 +86,24 @@
 </div>
 
 <!-- FOOTER -->
-<footer class="p-4 mt-4" style="background:#241E14;">
+<footer class="footer-ol p-4 mt-0">
     <div class="container-fluid px-3 px-md-4 px-lg-5">
-        <p class="fw-bold mb-2" style="color:#D4AF37; letter-spacing:3px;">OLIMPIC STORE</p>
-        <p class="small mb-1" style="color:#ccc;">Tu tienda de moda con los mejores productos</p>
-        <p class="small mb-1" style="color:#ccc;"><i class="bi bi-geo-alt"></i> Bogotá, Colombia</p>
-        <p class="small mb-1" style="color:#ccc;"><i class="bi bi-envelope"></i> info@olimpicstore.com</p>
-        <p class="small mb-3" style="color:#ccc;"><i class="bi bi-telephone"></i> +57 300 123 4567</p>
-        <p class="small text-center mb-0" style="color:#777;">&copy; 2026 OLIMPIC STORE. Todos los derechos reservados.</p>
+        <div class="row align-items-center">
+            <div class="col-md-6 mb-3 mb-md-0">
+                <img th:src="@{/marca/logo.png}" alt="Olympic Store" style="height:36px; width:auto; object-fit:contain;" class="mb-2">
+                <p class="small mb-1" style="color:var(--ol-text-muted);">Tu tienda de moda con los mejores productos</p>
+                <p class="small mb-1" style="color:var(--ol-text-muted);"><i class="bi bi-geo-alt me-1" style="color:var(--ol-gold);"></i>Bogotá, Colombia</p>
+                <p class="small mb-1" style="color:var(--ol-text-muted);"><i class="bi bi-envelope me-1" style="color:var(--ol-gold);"></i>info@olympicstore.com</p>
+                <p class="small mb-0" style="color:var(--ol-text-muted);"><i class="bi bi-telephone me-1" style="color:var(--ol-gold);"></i>+57 300 123 4567</p>
+            </div>
+            <div class="col-md-6 text-md-end">
+                <p class="small mb-0" style="color:var(--ol-text-muted);">&copy; 2026 Olympic Store. Todos los derechos reservados.</p>
+            </div>
+        </div>
     </div>
 </footer>
 
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script th:src="@{/js/tema.js}"></script>
 </body>
 </html>
