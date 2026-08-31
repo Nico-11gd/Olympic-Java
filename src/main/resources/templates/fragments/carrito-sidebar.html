@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<body>
+
+<div th:fragment="carritoSidebar" id="carrito" class="carrito-overlay">
+    <div class="carrito-panel">
+
+        <!-- Header -->
+        <div class="carrito-header">
+            <h5><i class="bi bi-cart3 me-2"></i>Mi Carrito</h5>
+            <a href="#" class="carrito-close">&times;</a>
+        </div>
+
+        <!-- Mensaje flash -->
+        <div th:if="${mensajeCarrito}" class="alert alert-success py-2 small mb-0 mx-4 mt-3" th:text="${mensajeCarrito}" style="border-radius:8px;"></div>
+
+        <!-- Carrito vacio -->
+        <div th:if="${carritoItems == null or carritoItems.isEmpty()}" class="text-center text-muted py-5 flex-grow-1">
+            <i class="bi bi-cart fs-1 d-block mb-3"></i>
+            <p class="mb-1 fw-semibold" style="color:#241E14;">Tu carrito está vacío</p>
+            <p class="small mb-3">Agrega productos para comenzar</p>
+            <a href="#" class="carrito-btn carrito-btn-primary" style="max-width:200px; display:inline-block;">Seguir comprando</a>
+        </div>
+
+        <!-- Items del carrito -->
+        <div th:unless="${carritoItems == null or carritoItems.isEmpty()}" class="carrito-body">
+            <div th:each="item, iter : ${carritoItems}" class="carrito-item">
+                <!-- Imagen -->
+                <div class="carrito-item-img">
+                    <img th:if="${item.imagenUrl != null}" th:src="@{${item.imagenUrl}}" alt="">
+                    <div th:unless="${item.imagenUrl != null}" class="d-flex align-items-center justify-content-center h-100">
+                        <i class="bi bi-bag text-muted"></i>
+                    </div>
+                </div>
+
+                <!-- Info -->
+                <div class="flex-grow-1" style="min-width:0;">
+                    <p class="fw-semibold mb-1 small text-truncate" style="color:#241E14;" th:text="${item.nombre}"></p>
+                    <p class="small text-muted mb-1" style="font-size:.72rem;">
+                        <span th:if="${item.talla != null and !item.talla.isEmpty()}">Talla: <span th:text="${item.talla}"></span></span>
+                        <span th:if="${item.color != null and !item.color.isEmpty()}"> · Color: <span th:text="${item.color}"></span></span>
+                    </p>
+                    <p class="fw-bold mb-2" style="color:#D4AF37; font-size:.85rem;"
+                       th:text="'$' + ${#numbers.formatDecimal(item.precioUnitario, 0, 'COMMA', 0, 'POINT')}"></p>
+
+                    <!-- Controles cantidad + eliminar -->
+                    <div class="d-flex align-items-center gap-2">
+                        <form th:action="@{/carrito/actualizar/{index}(index=${iter.index})}" method="post" class="d-inline">
+                            <input type="hidden" name="cantidad" th:value="${item.cantidad - 1}">
+                            <button type="submit" class="btn btn-sm px-2 py-0"
+                                    style="background:#F2E9D8; color:#241E14; font-size:.75rem; border-radius:6px;"
+                                    th:disabled="${item.cantidad <= 1}">
+                                <i class="bi bi-dash"></i>
+                            </button>
+                        </form>
+                        <span class="small fw-bold" style="min-width:20px; text-align:center; color:#241E14;" th:text="${item.cantidad}"></span>
+                        <form th:action="@{/carrito/actualizar/{index}(index=${iter.index})}" method="post" class="d-inline">
+                            <input type="hidden" name="cantidad" th:value="${item.cantidad + 1}">
+                            <button type="submit" class="btn btn-sm px-2 py-0"
+                                    style="background:#F2E9D8; color:#241E14; font-size:.75rem; border-radius:6px;">
+                                <i class="bi bi-plus"></i>
+                            </button>
+                        </form>
+
+                        <form th:action="@{/carrito/eliminar/{index}(index=${iter.index})}" method="post" class="d-inline ms-auto">
+                            <button type="submit" class="btn btn-sm px-2 py-0" style="color:#c0392b; font-size:.75rem;">
+                                <i class="bi bi-trash3"></i>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Subtotal item -->
+                <div class="text-end" style="flex-shrink:0;">
+                    <p class="fw-bold mb-0 small" style="color:#241E14;"
+                       th:text="'$' + ${#numbers.formatDecimal(item.total, 0, 'COMMA', 0, 'POINT')}"></p>
+                    <p th:if="${item.descuentoPorcentaje != null and item.descuentoPorcentaje.doubleValue() > 0}"
+                       class="mb-0 carrito-descuento" style="font-size:.65rem;"
+                       th:text="'-' + ${item.descuentoPorcentaje} + '%'"></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer resumen -->
+        <div th:unless="${carritoItems == null or carritoItems.isEmpty()}" class="carrito-footer">
+            <div class="carrito-resumen-row">
+                <span>Subtotal</span>
+                <span th:text="'$' + ${#numbers.formatDecimal(carritoSubtotal, 0, 'COMMA', 0, 'POINT')}"></span>
+            </div>
+            <div th:if="${carritoDescuento != null and carritoDescuento.doubleValue() > 0}"
+                 class="carrito-resumen-row carrito-descuento">
+                <span>Descuento</span>
+                <span th:text="'-$' + ${#numbers.formatDecimal(carritoDescuento, 0, 'COMMA', 0, 'POINT')}"></span>
+            </div>
+            <div class="carrito-resumen-row">
+                <span>IVA (19%)</span>
+                <span th:text="'$' + ${#numbers.formatDecimal(carritoIVA, 0, 'COMMA', 0, 'POINT')}"></span>
+            </div>
+            <div class="carrito-total">
+                <span>Total</span>
+                <span th:text="'$' + ${#numbers.formatDecimal(carritoTotal, 0, 'COMMA', 0, 'POINT')}"></span>
+            </div>
+
+            <a sec:authorize="isAuthenticated()" href="#" class="carrito-btn carrito-btn-primary">
+                <i class="bi bi-credit-card me-2"></i>FINALIZAR COMPRA
+            </a>
+            <a sec:authorize="!isAuthenticated()" th:href="@{/login}" class="carrito-btn carrito-btn-primary">
+                <i class="bi bi-box-arrow-in-right me-2"></i>INICIAR SESIÓN PARA COMPRAR
+            </a>
+
+            <form th:action="@{/carrito/limpiar}" method="post" class="mt-2">
+                <button type="submit" class="carrito-btn carrito-btn-secondary">
+                    <i class="bi bi-trash3 me-1"></i>Vaciar carrito
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

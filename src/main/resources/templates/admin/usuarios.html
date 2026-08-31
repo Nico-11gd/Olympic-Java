@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Usuarios - Panel Olimpic</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        .modal-css { display: none; position: fixed; inset: 0; z-index: 1050;
+            background: rgba(36,30,20,.55); align-items: center; justify-content: center; padding: 16px; }
+        .modal-css:target { display: flex; }
+        .modal-css-box { background: #FFFDF6; border-radius: 18px; width: 100%; max-width: 560px;
+            max-height: 88vh; overflow-y: auto; padding: 28px; position: relative; }
+        .modal-css-close { position: absolute; top: 20px; right: 20px; color: #241E14;
+            text-decoration: none; font-size: 1.6rem; line-height: 1; }
+        .campo-icono { background: #FBF3DC; border: 1px solid #E6D9B8; }
+    </style>
+</head>
+<body style="background:#F0F2F5;">
+
+<div th:replace="~{fragments/admin-header :: admin-header(currentPage='usuarios')}"></div>
+
+<div class="container-fluid px-3 px-md-4 px-lg-5 py-4">
+
+    <div th:if="${mensaje}" class="alert alert-success" th:text="${mensaje}"></div>
+
+    <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
+        <h3 class="fw-bold mb-0" style="color:#241E14;">Usuarios</h3>
+
+        <form th:action="@{/admin/usuarios}" method="get" class="d-flex flex-wrap gap-2">
+            <input type="hidden" name="estado" th:value="${estadoSeleccionado}">
+            <input type="search" name="q" th:value="${busqueda}" class="form-control" style="min-width:160px; flex:1 1 160px;" placeholder="Buscar por nombre o correo...">
+            <button type="submit" class="btn btn-outline-secondary">
+                <i class="bi bi-search"></i>
+            </button>
+            <a href="#modal-nuevo" class="btn fw-bold text-nowrap" style="background:#D4AF37; color:#241E14;">
+                <i class="bi bi-plus-lg"></i> Nuevo
+            </a>
+        </form>
+    </div>
+
+    <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
+        <div class="d-flex flex-wrap gap-2">
+            <a th:href="@{/admin/usuarios(estado='todos', q=${busqueda})}" class="btn btn-sm rounded-pill fw-semibold"
+               th:style="${estadoSeleccionado == 'todos'} ? 'background:#241E14; color:#FFFDF6;' : 'background:#FFFFFF; color:#666; border:1px solid #ddd;'">
+                <i class="bi bi-grid"></i> Todos
+            </a>
+            <a th:href="@{/admin/usuarios(estado='activos', q=${busqueda})}" class="btn btn-sm rounded-pill fw-semibold"
+               th:style="${estadoSeleccionado == 'activos'} ? 'background:#241E14; color:#FFFDF6;' : 'background:#FFFFFF; color:#666; border:1px solid #ddd;'">
+                <i class="bi bi-check-circle"></i> Activos
+            </a>
+            <a th:href="@{/admin/usuarios(estado='inactivos', q=${busqueda})}" class="btn btn-sm rounded-pill fw-semibold"
+               th:style="${estadoSeleccionado == 'inactivos'} ? 'background:#241E14; color:#FFFDF6;' : 'background:#FFFFFF; color:#666; border:1px solid #ddd;'">
+                <i class="bi bi-x-circle"></i> Inactivos
+            </a>
+            <a th:href="@{/admin/usuarios(estado='admin', q=${busqueda})}" class="btn btn-sm rounded-pill fw-semibold"
+               th:style="${estadoSeleccionado == 'admin'} ? 'background:#241E14; color:#FFFDF6;' : 'background:#FFFFFF; color:#666; border:1px solid #ddd;'">
+                <i class="bi bi-shield-lock"></i> Admins
+            </a>
+            <a th:href="@{/admin/usuarios(estado='clientes', q=${busqueda})}" class="btn btn-sm rounded-pill fw-semibold"
+               th:style="${estadoSeleccionado == 'clientes'} ? 'background:#241E14; color:#FFFDF6;' : 'background:#FFFFFF; color:#666; border:1px solid #ddd;'">
+                <i class="bi bi-people"></i> Clientes
+            </a>
+        </div>
+        <span class="small text-muted" th:text="${usuarios.size()} + ' usuario(s)'"></span>
+    </div>
+
+    <div th:if="${usuarios.isEmpty()}" class="text-center text-muted py-5">
+        <i class="bi bi-people fs-1 d-block mb-2"></i>No se encontraron usuarios.
+    </div>
+
+    <!-- Escritorio / tablet: tabla -->
+    <div th:unless="${usuarios.isEmpty()}" class="table-responsive rounded-4 shadow-sm d-none d-md-block" style="background:#FFFDF6;">
+        <table class="table align-middle mb-0">
+            <thead>
+            <tr class="small text-uppercase text-muted">
+                <th>Usuario</th>
+                <th>Rol</th>
+                <th>Estado</th>
+                <th>Creado</th>
+                <th class="text-end">Acciones</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="u : ${usuarios}">
+                <td>
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="d-flex align-items-center justify-content-center fw-bold"
+                             style="width:42px; height:42px; border-radius:50%; flex-shrink:0; font-size:.85rem;"
+                             th:styleappend="${u.rol.name() == 'ADMIN'} ? 'background:rgba(212,175,55,.2); color:#8A6D1A;' : 'background:rgba(21,101,192,.12); color:#1565C0;'"
+                             th:text="${#strings.substring(u.nombre, 0, 1)}">
+                        </div>
+                        <div>
+                            <p class="fw-semibold mb-0" style="color:#241E14;" th:text="${u.nombre}"></p>
+                            <p class="small text-muted mb-0" th:text="${u.correo}"></p>
+                        </div>
+                    </div>
+                </td>
+                <td>
+                    <span th:if="${u.rol.name() == 'ADMIN'}" class="badge rounded-pill" style="background:rgba(212,175,55,.2); color:#8A6D1A;">
+                        <i class="bi bi-shield-lock me-1"></i>Admin
+                    </span>
+                    <span th:unless="${u.rol.name() == 'ADMIN'}" class="badge rounded-pill" style="background:rgba(21,101,192,.12); color:#1565C0;">
+                        <i class="bi bi-person me-1"></i>Cliente
+                    </span>
+                </td>
+                <td>
+                    <span th:if="${u.activo}" class="badge rounded-pill text-bg-success"><i class="bi bi-circle-fill" style="font-size:.5rem;"></i> Activo</span>
+                    <span th:unless="${u.activo}" class="badge rounded-pill text-bg-secondary">Inactivo</span>
+                </td>
+                <td class="small text-muted" th:text="${#temporals.format(u.createdAt, 'dd/MM/yyyy')}"></td>
+                <td class="text-end">
+                    <form th:action="@{/admin/usuarios/{id}/estado(id=${u.id})}" method="post" class="d-inline">
+                        <input type="hidden" name="activo" th:value="${!u.activo}">
+                        <button type="submit" class="btn btn-sm me-1"
+                                th:style="${u.activo} ? 'background:rgba(245,124,0,.15); color:#F57C00;' : 'background:rgba(67,160,71,.15); color:#43A047;'"
+                                th:title="${u.activo} ? 'Desactivar' : 'Activar'">
+                            <i class="bi" th:classappend="${u.activo} ? 'bi-lock' : 'bi-unlock'"></i>
+                        </button>
+                    </form>
+                    <a th:href="'#modal-editar-' + ${u.id}" class="btn btn-sm me-1" style="background:rgba(21,101,192,.15); color:#1565C0;">
+                        <i class="bi bi-pencil"></i>
+                    </a>
+                    <form th:action="@{/admin/usuarios/{id}/eliminar(id=${u.id})}" method="post" class="d-inline"
+                          onsubmit="return confirm('¿Eliminar este usuario? Esta acción no se puede deshacer.');">
+                        <button type="submit" class="btn btn-sm" style="background:rgba(211,47,47,.12); color:#D32F2F;" title="Eliminar">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </form>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Celular: tarjetas apiladas -->
+    <div th:unless="${usuarios.isEmpty()}" class="d-md-none d-flex flex-column gap-2">
+        <div th:each="u : ${usuarios}" class="card border-0 shadow-sm" style="background:#FFFDF6;">
+            <div class="card-body d-flex gap-3 p-3">
+                <div class="d-flex align-items-center justify-content-center fw-bold"
+                     style="width:48px; height:48px; border-radius:50%; flex-shrink:0; font-size:.95rem;"
+                     th:styleappend="${u.rol.name() == 'ADMIN'} ? 'background:rgba(212,175,55,.2); color:#8A6D1A;' : 'background:rgba(21,101,192,.12); color:#1565C0;'"
+                     th:text="${#strings.substring(u.nombre, 0, 1)}">
+                </div>
+
+                <div class="flex-grow-1" style="min-width:0;">
+                    <div class="d-flex justify-content-between align-items-start gap-2">
+                        <div style="min-width:0;">
+                            <p class="fw-semibold mb-0 text-truncate" style="color:#241E14;" th:text="${u.nombre}"></p>
+                            <p class="small text-muted mb-1" th:text="${u.correo}"></p>
+                        </div>
+                        <span th:if="${u.activo}" class="badge rounded-pill text-bg-success text-nowrap">Activo</span>
+                        <span th:unless="${u.activo}" class="badge rounded-pill text-bg-secondary text-nowrap">Inactivo</span>
+                    </div>
+
+                    <div class="d-flex flex-wrap gap-1 mb-2">
+                        <span th:if="${u.rol.name() == 'ADMIN'}" class="badge rounded-pill" style="background:rgba(212,175,55,.2); color:#8A6D1A;">Admin</span>
+                        <span th:unless="${u.rol.name() == 'ADMIN'}" class="badge rounded-pill" style="background:rgba(21,101,192,.12); color:#1565C0;">Cliente</span>
+                        <span class="badge text-bg-light border" th:text="'Creado: ' + ${#temporals.format(u.createdAt, 'dd/MM/yy')}"></span>
+                    </div>
+
+                    <div class="d-flex gap-2">
+                        <a th:href="'#modal-editar-' + ${u.id}" class="btn btn-sm flex-grow-1" style="background:rgba(21,101,192,.15); color:#1565C0;">
+                            <i class="bi bi-pencil me-1"></i>Editar
+                        </a>
+                        <form th:action="@{/admin/usuarios/{id}/estado(id=${u.id})}" method="post">
+                            <input type="hidden" name="activo" th:value="${!u.activo}">
+                            <button type="submit" class="btn btn-sm"
+                                    th:style="${u.activo} ? 'background:rgba(245,124,0,.15); color:#F57C00;' : 'background:rgba(67,160,71,.15); color:#43A047;'">
+                                <i class="bi" th:classappend="${u.activo} ? 'bi-lock' : 'bi-unlock'"></i>
+                            </button>
+                        </form>
+                        <form th:action="@{/admin/usuarios/{id}/eliminar(id=${u.id})}" method="post"
+                              onsubmit="return confirm('¿Eliminar este usuario?');">
+                            <button type="submit" class="btn btn-sm" style="background:rgba(211,47,47,.12); color:#D32F2F;">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL: NUEVO USUARIO -->
+<div id="modal-nuevo" class="modal-css">
+    <div class="modal-css-box">
+        <a href="#" class="modal-css-close">&times;</a>
+        <h5 class="fw-bold mb-0" style="color:#241E14;">Nuevo usuario</h5>
+        <p class="text-muted small mb-3">Completa todos los campos obligatorios</p>
+
+        <div th:if="${usuarioFormError != null and usuarioFormId == null}" class="alert alert-danger py-2 small" th:text="${usuarioFormError}"></div>
+
+        <form th:action="@{/admin/usuarios/nuevo}" method="post" th:with="d=${usuarioFormNuevo}">
+
+            <div class="mb-3">
+                <label class="form-label small fw-semibold">Nombre <span class="text-danger">*</span></label>
+                <div class="input-group">
+                    <span class="input-group-text campo-icono"><i class="bi bi-person text-muted"></i></span>
+                    <input type="text" name="nombre" th:value="${d.nombre}" class="form-control campo-icono" placeholder="Nombre completo" required minlength="2">
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label small fw-semibold">Correo <span class="text-danger">*</span></label>
+                <div class="input-group">
+                    <span class="input-group-text campo-icono"><i class="bi bi-envelope text-muted"></i></span>
+                    <input type="email" name="correo" th:value="${d.correo}" class="form-control campo-icono" placeholder="correo@ejemplo.com" required>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label small fw-semibold">Contraseña <span class="text-danger">*</span></label>
+                <div class="input-group">
+                    <span class="input-group-text campo-icono"><i class="bi bi-lock text-muted"></i></span>
+                    <input type="password" name="password" class="form-control campo-icono" placeholder="Mín. 6 caracteres" required minlength="6">
+                </div>
+                <div class="form-text small">Mínimo 6 caracteres, una mayúscula, una minúscula, un número y un carácter especial.</div>
+            </div>
+
+            <div class="mb-4">
+                <label class="form-label small fw-semibold">Rol <span class="text-danger">*</span></label>
+                <select name="rol" class="form-select campo-icono" required>
+                    <option value="">-- Selecciona --</option>
+                    <option value="admin" th:selected="${d.rol != null and d.rol.name() == 'ADMIN'}">Admin</option>
+                    <option value="cliente" th:selected="${d.rol != null and d.rol.name() == 'CLIENTE'}">Cliente</option>
+                </select>
+            </div>
+
+            <button type="submit" class="btn w-100 fw-bold py-2 rounded-pill" style="background:#D4AF37; color:#241E14;">CREAR USUARIO</button>
+        </form>
+    </div>
+</div>
+
+<!-- MODALES: EDITAR USUARIO (uno por fila) -->
+<div th:each="u : ${usuarios}">
+    <div th:id="'modal-editar-' + ${u.id}" class="modal-css">
+        <div class="modal-css-box">
+            <a href="#" class="modal-css-close">&times;</a>
+            <h5 class="fw-bold mb-0" style="color:#241E14;">Editar usuario</h5>
+            <p class="text-muted small mb-3">Modificando <span th:text="${u.nombre}"></span></p>
+
+            <div th:if="${usuarioFormError != null}" class="alert alert-danger py-2 small" th:text="${usuarioFormError}"></div>
+
+            <form th:action="@{/admin/usuarios/{id}/editar(id=${u.id})}" method="post">
+
+                <div class="mb-3">
+                    <label class="form-label small fw-semibold">Nombre <span class="text-danger">*</span></label>
+                    <div class="input-group">
+                        <span class="input-group-text campo-icono"><i class="bi bi-person text-muted"></i></span>
+                        <input type="text" name="nombre" class="form-control campo-icono" required minlength="2"
+                               th:value="${u.nombre}">
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label small fw-semibold">Correo <span class="text-danger">*</span></label>
+                    <div class="input-group">
+                        <span class="input-group-text campo-icono"><i class="bi bi-envelope text-muted"></i></span>
+                        <input type="email" name="correo" class="form-control campo-icono" required
+                               th:value="${u.correo}">
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label small fw-semibold">Rol <span class="text-danger">*</span></label>
+                    <select name="rol" class="form-select campo-icono" required>
+                        <option value="admin" th:selected="${u.rol.name() == 'ADMIN'}">Admin</option>
+                        <option value="cliente" th:selected="${u.rol.name() == 'CLIENTE'}">Cliente</option>
+                    </select>
+                </div>
+
+                <button type="submit" class="btn w-100 fw-bold py-2 rounded-pill" style="background:#D4AF37; color:#241E14;">GUARDAR CAMBIOS</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>
