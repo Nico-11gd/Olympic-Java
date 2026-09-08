@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkout - Olympic Store</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <link th:href="@{/css/olympic.css}" rel="stylesheet">
+</head>
+<body>
+
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+
+<div class="container-fluid px-3 px-md-4 px-lg-5 py-4" style="background:var(--ol-bg); min-height:100vh;">
+
+    <h5 class="heading-ol text-uppercase mb-4">Finalizar Compra</h5>
+
+    <div th:if="${error}" class="alert alert-danger py-2 small mb-3" th:text="${error}" style="border-radius:8px;"></div>
+    <div th:if="${errorCarrito}" class="alert alert-danger py-2 small mb-3">
+        <i class="bi bi-exclamation-triangle-fill me-1"></i><span th:text="${errorCarrito}"></span>
+        <a th:href="@{/coleccion}" class="float-end fw-semibold" style="color:#fff; text-decoration:underline;">Ir a la colección</a>
+    </div>
+
+    <form th:action="@{/checkout}" method="post" id="formCheckout" th:object="${checkout}">
+        <div class="row g-4">
+
+            <!-- ENVÍO + PAGO -->
+            <div class="col-lg-7">
+
+                <!-- DATOS DE ENTREGA -->
+                <div class="checkout-panel mb-4">
+                    <h6 class="checkout-section-title"><i class="bi bi-geo-alt"></i>Datos de entrega</h6>
+
+                    <div th:unless="${direcciones.isEmpty()}" class="mb-3">
+                        <label class="form-label small fw-semibold" for="direccionGuardada">Direcciones guardadas</label>
+                        <select id="direccionGuardada" class="form-select form-select-sm"
+                                onchange="llenarDireccion(this)">
+                            <option value="">Elegir una dirección guardada...</option>
+                            <option th:each="d : ${direcciones}" th:value="${d.id}"
+                                    th:attr="data-tel=${d.telefono}, data-dep=${d.departamento},
+                                               data-ciu=${d.ciudad}, data-dir=${d.direccion},
+                                               data-ref=${d.referencias}"
+                                    th:text="(${d.esPrincipal} ? '★ ' : '') + ${d.nombreDestinatario} + ' - ' + ${d.ciudad} + ' (' + ${d.direccion} + ')'"></option>
+                        </select>
+                    </div>
+
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label small fw-semibold" for="nombreEnvio">Nombre y apellidos</label>
+                            <input type="text" id="nombreEnvio" name="nombreEnvio" class="form-control form-control-sm"
+                                   th:value="${checkout.nombreEnvio}" placeholder="Quién recibe el pedido">
+                            <small th:if="${#fields.hasErrors('nombreEnvio')}" class="checkout-validation-error"
+                                   th:errors="*{nombreEnvio}"></small>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-semibold" for="correoCheckout">Correo</label>
+                            <input type="email" id="correoCheckout" class="form-control form-control-sm" readonly disabled
+                                   th:value="${usuarioActual != null ? usuarioActual.correo : ''}">
+                            <small class="text-ol-muted" style="font-size:.7rem;">Se envía aquí la confirmación</small>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-semibold" for="telefono">Teléfono</label>
+                            <input type="text" id="telefono" name="telefono" class="form-control form-control-sm"
+                                   th:value="${checkout.telefono}" placeholder="300 000 0000">
+                            <small th:if="${#fields.hasErrors('telefono')}" class="checkout-validation-error"
+                                   th:errors="*{telefono}"></small>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-semibold" for="departamento">Departamento</label>
+                            <input type="text" id="departamento" name="departamento" class="form-control form-control-sm"
+                                   th:value="${checkout.departamento}" placeholder="Ej: Cundinamarca">
+                            <small th:if="${#fields.hasErrors('departamento')}" class="checkout-validation-error"
+                                   th:errors="*{departamento}"></small>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-semibold" for="ciudad">Ciudad</label>
+                            <input type="text" id="ciudad" name="ciudad" class="form-control form-control-sm"
+                                   th:value="${checkout.ciudad}" placeholder="Ej: Bogotá">
+                            <small th:if="${#fields.hasErrors('ciudad')}" class="checkout-validation-error"
+                                   th:errors="*{ciudad}"></small>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-semibold" for="direccion">Dirección</label>
+                            <input type="text" id="direccion" name="direccion" class="form-control form-control-sm"
+                                   th:value="${checkout.direccion}" placeholder="Calle, carrera, apto...">
+                            <small th:if="${#fields.hasErrors('direccion')}" class="checkout-validation-error"
+                                   th:errors="*{direccion}"></small>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label small fw-semibold" for="referencias">Referencias (opcional)</label>
+                            <input type="text" id="referencias" name="referencias" class="form-control form-control-sm"
+                                   th:value="${checkout.referencias}" placeholder="Ej: frente a la iglesia, piso 2">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- MÉTODO DE PAGO -->
+                <div class="checkout-panel">
+                    <h6 class="checkout-section-title"><i class="bi bi-credit-card"></i>Método de pago</h6>
+                    <div class="row g-2">
+                        <div class="col-6 col-md-4" th:each="mp : ${metodosPago}">
+                            <input type="radio" class="btn-check" name="metodo"
+                                   th:id="'metodo-' + ${mp.valor}"
+                                   th:value="${mp.valor}"
+                                   th:checked="${checkout.metodo != null and checkout.metodo.name() == mp.name()}">
+                            <label th:for="'metodo-' + ${mp.valor}" class="metodo-pago-card">
+                                <i class="bi metodo-pago-icon" th:classappend="${iconosMetodo.get(mp)}"></i>
+                                <span class="metodo-pago-name d-block mt-2" th:text="${etiquetasMetodo.get(mp)}"></span>
+                                <span th:if="${mp == T(com.olympic.olympic.entity.MetodoPago).EFECTIVO}"
+                                      class="d-block text-ol-muted" style="font-size:.66rem;">Pagas al recibir</span>
+                                <span th:unless="${mp == T(com.olympic.olympic.entity.MetodoPago).EFECTIVO}"
+                                      class="d-block text-ol-muted" style="font-size:.66rem;">QR para pagar</span>
+                            </label>
+                        </div>
+                    </div>
+                    <small th:if="${#fields.hasErrors('metodo')}" class="checkout-validation-error d-block mt-2"
+                           th:errors="*{metodo}"></small>
+                    <p th:if="${checkout.metodo != null and checkout.metodo != T(com.olympic.olympic.entity.MetodoPago).EFECTIVO}"
+                       class="small mt-3 mb-0 text-ol-muted">
+                        <i class="bi bi-qr-code-scan me-1"></i>Después de confirmar, verás el código QR real con los datos
+                        de este método para escanearlo y pagar desde tu app.
+                    </p>
+                </div>
+            </div>
+
+            <!-- RESUMEN -->
+            <div class="col-lg-5">
+                <div class="checkout-panel sticky-top" style="top:80px;">
+                    <h6 class="checkout-section-title"><i class="bi bi-bag-check"></i>Resumen del pedido</h6>
+
+                    <div th:each="item : ${carritoItems}" class="d-flex align-items-center gap-2 mb-2">
+                        <div class="d-flex align-items-center justify-content-center"
+                             style="width:46px; height:46px; border-radius:8px; background:var(--ol-gray); overflow:hidden; flex-shrink:0;">
+                            <img th:if="${item.imagenUrl != null}" th:src="@{${item.imagenUrl}}" alt=""
+                                 style="width:100%; height:100%; object-fit:cover;">
+                            <i th:unless="${item.imagenUrl != null}" class="bi bi-bag text-ol-muted"></i>
+                        </div>
+                        <div class="flex-grow-1" style="min-width:0;">
+                            <p class="small fw-semibold mb-0 text-truncate" style="color:var(--ol-white);" th:text="${item.nombre}"></p>
+                            <p class="small mb-0 text-ol-muted" style="font-size:.72rem;">
+                                <span th:if="${item.talla != null and !item.talla.isEmpty()}">Talla: <span th:text="${item.talla}"></span></span>
+                                <span th:if="${item.color != null and !item.color.isEmpty()}"> · Color: <span th:text="${item.color}"></span></span>
+                                <span> · x<span th:text="${item.cantidad}"></span></span>
+                            </p>
+                        </div>
+                        <span class="small fw-bold" style="color:var(--ol-gold); flex-shrink:0;"
+                              th:text="'$' + ${#numbers.formatDecimal(item.total, 0, 'COMMA', 0, 'POINT')}"></span>
+                    </div>
+
+                    <hr style="border-color:var(--ol-border);">
+                    <div class="resumen-fila">
+                        <span>Subtotal</span>
+                        <strong th:text="'$' + ${#numbers.formatDecimal(carritoSubtotal, 0, 'COMMA', 0, 'POINT')}"></strong>
+                    </div>
+                    <div th:if="${carritoDescuento != null and carritoDescuento.doubleValue() > 0}" class="resumen-fila">
+                        <span>Descuento</span>
+                        <strong style="color:var(--ol-success);"
+                                th:text="'-$' + ${#numbers.formatDecimal(carritoDescuento, 0, 'COMMA', 0, 'POINT')}"></strong>
+                    </div>
+                    <div class="resumen-fila">
+                        <span>IVA (19%)</span>
+                        <strong th:text="'$' + ${#numbers.formatDecimal(carritoIVA, 0, 'COMMA', 0, 'POINT')}"></strong>
+                    </div>
+                    <div class="resumen-fila resumen-total">
+                        <span class="fw-bold" style="color:var(--ol-white);">Total a pagar</span>
+                        <strong th:text="'$' + ${#numbers.formatDecimal(carritoTotal, 0, 'COMMA', 0, 'POINT')}"></strong>
+                    </div>
+
+                    <button type="submit" class="btn btn-ol-gold w-100 fw-bold py-2 rounded-pill mt-3"
+                            style="letter-spacing:1px;">
+                        <i class="bi bi-shield-check me-2"></i>CONFIRMAR PEDIDO
+                    </button>
+                    <p class="text-center small text-ol-muted mt-2 mb-0" style="font-size:.7rem;">
+                        <i class="bi bi-patch-check me-1"></i>Al confirmar se valida el stock disponible de cada producto.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+<footer class="footer-ol text-center py-4 mt-5 small">
+    &copy; 2026 Olympic Store. Todos los derechos reservados.
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    function llenarDireccion(selector) {
+        const opt = selector.options[selector.selectedIndex];
+        if (!opt || !opt.value) return;
+        document.getElementById('telefono').value = opt.dataset.tel || '';
+        document.getElementById('departamento').value = opt.dataset.dep || '';
+        document.getElementById('ciudad').value = opt.dataset.ciu || '';
+        document.getElementById('direccion').value = opt.dataset.dir || '';
+        document.getElementById('referencias').value = opt.dataset.ref || '';
+    }
+</script>
+</body>
+</html>

@@ -4,33 +4,16 @@
 <div th:fragment="navbar">
 
 <header class="d-flex align-items-center justify-content-between px-3 px-md-4 py-2 header-ol">
-    <nav class="navbar-filtros d-flex align-items-center gap-2 flex-grow-1 overflow-auto">
-        <i class="bi bi-funnel-fill text-ol-gold me-1" title="Filtrar por categoría"></i>
-        <a th:href="@{/}" class="btn btn-sm rounded-pill fw-semibold flex-shrink-0"
-           th:classappend="${categoriaSeleccionada == null} ? 'pill-ol-active' : 'pill-ol-inactive'">
-            Todos
-        </a>
-        <a th:each="cat : ${categorias}"
-           th:href="@{/(categoria=${cat.id})}"
-           th:text="${cat.nombre}"
-           class="btn btn-sm rounded-pill fw-semibold flex-shrink-0"
-           th:classappend="${categoriaSeleccionada != null and categoriaSeleccionada == cat.id} ? 'pill-ol-active' : 'pill-ol-inactive'">
-        </a>
-    </nav>
+    <a th:href="@{/}" class="text-decoration-none d-flex align-items-center gap-2">
+        <img th:src="@{/marca/logo.png}" alt="Olympic Store" style="height:48px; width:auto; object-fit:contain;">
+    </a>
 
     <div class="d-flex align-items-center gap-2 flex-shrink-0 ms-2">
-        <button type="button" id="temaBtn" onclick="toggleTema()"
-                class="btn btn-sm fw-semibold"
-                style="background:var(--ol-gray); color:var(--ol-text); border:1px solid var(--ol-border);">
-            <i id="temaIcono" class="bi bi-moon-stars"></i>
-        </button>
-
         <a href="#carrito"
            class="btn btn-sm fw-semibold position-relative"
            style="background:var(--ol-gray); color:var(--ol-text); border:1px solid var(--ol-border);">
             <i class="bi bi-cart3 fs-5"></i>
             <span th:if="${carritoContador != null and carritoContador > 0}"
-                  id="carritoBadge"
                   class="position-absolute top-0 start-100 translate-middle badge rounded-pill"
                   style="background:var(--ol-gold); color:var(--ol-black); font-size:.6rem;"
                   th:text="${carritoContador}"></span>
@@ -85,7 +68,7 @@
                 <h5 class="modal-title fw-bold" id="modalFotoPerfilLabel" style="color:var(--ol-white);">
                     <i class="bi bi-camera me-2" style="color:var(--ol-gold);"></i>Foto de perfil
                 </h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
             </div>
             <div class="modal-body">
                 <div class="text-center mb-3">

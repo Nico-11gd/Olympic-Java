@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Reporte de productos — Olympic Store</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <link th:href="@{/css/olympic.css}" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <style>
+        @page { size: A4 landscape; margin: 0; }
+    </style>
+</head>
+<body class="pagina-reportes">
+
+<div th:replace="~{fragments/admin-header :: admin-header(currentPage='reportes')}"></div>
+<div th:replace="~{fragments/reporte-header :: reporte-topbar(@{/admin/reportes/productos/excel(categoria=${categoriaSeleccionada}, estado=${estadoSeleccionado}, q=${busqueda})}, true)}"></div>
+
+<div class="container px-3 pb-5">
+
+<div class="reporte-paper">
+    <th:block th:replace="~{fragments/reporte-header :: reporte-empresa}"></th:block>
+
+    <form method="get" th:action="@{/admin/reportes/productos}" class="no-print reporte-filtros d-flex flex-wrap gap-2 align-items-end mt-3">
+        <div>
+            <label class="small fw-semibold">Buscar</label>
+            <input type="search" name="q" class="form-control form-control-sm" th:value="${busqueda}" placeholder="Nombre del producto...">
+        </div>
+        <div>
+            <label class="small fw-semibold">Categoría</label>
+            <select name="categoria" class="form-select form-select-sm">
+                <option value="" th:selected="${categoriaSeleccionada == null}">Todas</option>
+                <option th:each="c : ${categorias}" th:value="${c.id}" th:selected="${categoriaSeleccionada == c.id}" th:text="${c.nombre}"></option>
+            </select>
+        </div>
+        <div>
+            <label class="small fw-semibold">Estado</label>
+            <select name="estado" class="form-select form-select-sm">
+                <option value="todos" th:selected="${estadoSeleccionado == 'todos'}">Todos</option>
+                <option value="activos" th:selected="${estadoSeleccionado == 'activos'}">Activos</option>
+                <option value="inactivos" th:selected="${estadoSeleccionado == 'inactivos'}">Inactivos</option>
+            </select>
+        </div>
+        <button type="submit" class="btn btn-sm btn-ol-gold fw-bold rounded-pill"><i class="bi bi-funnel me-1"></i>Filtrar</button>
+    </form>
+
+    <div class="row g-3 mt-1">
+        <div class="col-6 col-md-3">
+            <div class="reporte-kpi">
+                <div class="small text-muted text-uppercase">Productos</div>
+                <div class="fs-4 fw-bold" th:text="${totalProductos}"></div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="reporte-kpi">
+                <div class="small text-muted text-uppercase">Unidades en stock</div>
+                <div class="fs-4 fw-bold" th:text="${stockTotal}"></div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="reporte-kpi">
+                <div class="small text-muted text-uppercase">Valor del inventario</div>
+                <div class="fs-4 fw-bold">$<span th:text="${#numbers.formatDecimal(valorInventario, 1, 2)}"></span></div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="reporte-kpi">
+                <div class="small text-muted text-uppercase">Stock bajo (≤5)</div>
+                <div class="fs-4 fw-bold text-danger" th:text="${stockBajo}"></div>
+            </div>
+        </div>
+    </div>
+
+    <h6 class="reporte-seccion mt-4">Existencia de productos</h6>
+    <div class="table-responsive">
+        <table class="table table-sm reporte-tabla">
+            <thead>
+                <tr>
+                    <th>Código</th>
+                    <th>Producto</th>
+                    <th>Categoría</th>
+                    <th class="text-end">Precio</th>
+                    <th class="text-end">Oferta</th>
+                    <th class="text-end">Stock</th>
+                    <th class="text-end">Vendidos</th>
+                    <th class="text-end">Valor inv.</th>
+                    <th>Estado</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="p : ${productos}">
+                    <td th:text="${p.codigo != null ? p.codigo : '-'}"></td>
+                    <td class="fw-semibold" th:text="${p.nombre}"></td>
+                    <td th:text="${p.categoria != null ? p.categoria.nombre : '-'}"></td>
+                    <td class="text-end">$<span th:text="${#numbers.formatDecimal(p.precio, 1, 2)}"></span></td>
+                    <td class="text-end">
+                        <span th:if="${p.offerPrice != null}">$<span th:text="${#numbers.formatDecimal(p.offerPrice, 1, 2)}"></span></span>
+                        <span th:unless="${p.offerPrice != null}">-</span>
+                    </td>
+                    <td class="text-end">
+                        <span th:text="${p.stock}"
+                              th:classappend="${p.stock != null and p.stock == 0} ? 'text-danger fw-bold' : (${p.stock != null and p.stock <= 5} ? 'text-warning fw-bold' : '')"></span>
+                    </td>
+                    <td class="text-end" th:text="${vendidas[p.id] != null ? vendidas[p.id] : 0}"></td>
+                    <td class="text-end fw-semibold">$<span th:text="${#numbers.formatDecimal(p.stock != null ? (p.offerPrice != null ? p.offerPrice : p.precio) * p.stock : 0, 1, 2)}"></span></td>
+                    <td>
+                        <span th:if="${p.activo and p.stock != null and p.stock == 0}" class="badge rounded-pill text-bg-danger">Agotado</span>
+                        <span th:if="${p.activo and p.stock != null and p.stock > 0}" class="badge rounded-pill" style="background:#198754;">Activo</span>
+                        <span th:if="${not p.activo}" class="badge rounded-pill text-bg-secondary">Inactivo</span>
+                    </td>
+                </tr>
+                <tr th:if="${#lists.isEmpty(productos)}">
+                    <td colspan="9" class="text-center text-muted py-4">No hay productos para los filtros seleccionados.</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <h6 class="reporte-seccion mt-4">Gráficos</h6>
+    <div class="row g-3">
+        <div class="col-lg-6">
+            <div class="reporte-grafico">
+                <div class="small fw-semibold mb-2">Valor de inventario por categoría</div>
+                <canvas id="graficoCategoria" height="100"></canvas>
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <div class="reporte-grafico">
+                <div class="small fw-semibold mb-2">Top 10 productos más vendidos</div>
+                <canvas id="graficoTop" height="100"></canvas>
+            </div>
+        </div>
+    </div>
+
+</div>
+</div>
+
+<script th:inline="javascript">
+    var labelsCategoria = /*[[${labelsCategoria}]]*/ [];
+    var valoresCategoria = /*[[${valoresCategoria}]]*/ [];
+    var labelsTop = /*[[${labelsTop}]]*/ [];
+    var valoresTop = /*[[${valoresTop}]]*/ [];
+    var paleta = ['#d4af37', '#1b2a4e', '#2d8a4e', '#b97a1f', '#7a5c2e', '#57606f', '#8b5a2b', '#556b2f', '#4a5568', '#c0392b'];
+
+    if (labelsCategoria.length) {
+        new Chart(document.getElementById('graficoCategoria'), {
+            type: 'bar',
+            data: {
+                labels: labelsCategoria,
+                datasets: [{ label: 'Valor inv. ($)', data: valoresCategoria,
+                    backgroundColor: 'rgba(27,42,78,.85)', borderColor: '#1b2a4e', borderWidth: 1, borderRadius: 4 }]
+            },
+            options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } }
+        });
+    } else {
+        document.getElementById('graficoCategoria').closest('.reporte-grafico').innerHTML = '<div class="text-muted small">Sin datos.</div>';
+    }
+
+    if (labelsTop.length) {
+        new Chart(document.getElementById('graficoTop'), {
+            type: 'bar',
+            data: {
+                labels: labelsTop,
+                datasets: [{ label: 'Unidades', data: valoresTop,
+                    backgroundColor: 'rgba(212,175,55,.85)', borderColor: '#d4af37', borderWidth: 1, borderRadius: 4 }]
+            },
+            options: { responsive: true, indexAxis: 'y', plugins: { legend: { display: false } }, scales: { x: { beginAtZero: true } } }
+        });
+    } else {
+        document.getElementById('graficoTop').closest('.reporte-grafico').innerHTML = '<div class="text-muted small">Sin datos.</div>';
+    }
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

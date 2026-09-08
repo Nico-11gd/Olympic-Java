@@ -3,11 +3,18 @@ package com.olympic.olympic.controller;
 import com.olympic.olympic.dto.ProductoResponse;
 import com.olympic.olympic.dto.RegistroRequest;
 import com.olympic.olympic.entity.CarritoItem;
+import com.olympic.olympic.entity.DetallePedido;
+import com.olympic.olympic.entity.EstadoPago;
+import com.olympic.olympic.entity.Pago;
+import com.olympic.olympic.entity.Pedido;
 import com.olympic.olympic.entity.Producto;
 import com.olympic.olympic.entity.Rol;
 import com.olympic.olympic.entity.Usuario;
 import com.olympic.olympic.exception.RecursoDuplicadoException;
 import com.olympic.olympic.repository.CategoriaRepository;
+import com.olympic.olympic.repository.DetallePedidoRepository;
+import com.olympic.olympic.repository.PagoRepository;
+import com.olympic.olympic.repository.PedidoRepository;
 import com.olympic.olympic.repository.ProductoRepository;
 import com.olympic.olympic.repository.UsuarioRepository;
 import com.olympic.olympic.service.AuthService;
@@ -28,8 +35,12 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 /**
  * Páginas públicas (catálogo, detalle de producto, login, registro) y la
@@ -45,19 +56,28 @@ public class PageController {
     private final AuthService authService;
     private final CarritoService carritoService;
     private final UsuarioRepository usuarioRepository;
+    private final PedidoRepository pedidoRepository;
+    private final DetallePedidoRepository detallePedidoRepository;
+    private final PagoRepository pagoRepository;
 
     public PageController(ProductoService productoService,
                            CategoriaRepository categoriaRepository,
                            ProductoRepository productoRepository,
                            AuthService authService,
                            CarritoService carritoService,
-                           UsuarioRepository usuarioRepository) {
+                           UsuarioRepository usuarioRepository,
+                           PedidoRepository pedidoRepository,
+                           DetallePedidoRepository detallePedidoRepository,
+                           PagoRepository pagoRepository) {
         this.productoService = productoService;
         this.categoriaRepository = categoriaRepository;
         this.productoRepository = productoRepository;
         this.authService = authService;
         this.carritoService = carritoService;
         this.usuarioRepository = usuarioRepository;
+        this.pedidoRepository = pedidoRepository;
+        this.detallePedidoRepository = detallePedidoRepository;
+        this.pagoRepository = pagoRepository;
     }
 
     @SuppressWarnings("unchecked")
@@ -113,6 +133,35 @@ public class PageController {
         model.addAttribute("categoriaSeleccionada", categoriaId);
         model.addAttribute("busqueda", q);
         return "inicio";
+    }
+
+    // Colección: vista independiente del catálogo con filtros, buscador y
+    // todos los productos, a la que se llega desde "VER COLECCIÓN" en la raíz.
+    @GetMapping("/coleccion")
+    public String coleccion(@RequestParam(name = "q", required = false) String q,
+                            @RequestParam(name = "categoria", required = false) Integer categoriaId,
+                            Model model) {
+
+        List<ProductoResponse> productos = productoService.listar(false);
+
+        if (q != null && !q.isBlank()) {
+            String buscado = q.trim().toLowerCase();
+            productos = productos.stream()
+                    .filter(p -> p.getNombre().toLowerCase().contains(buscado))
+                    .toList();
+        }
+
+        if (categoriaId != null) {
+            productos = productos.stream()
+                    .filter(p -> categoriaId.equals(p.getCategoriaId()))
+                    .toList();
+        }
+
+        model.addAttribute("productos", productos);
+        model.addAttribute("categorias", categoriaRepository.findByActivoTrueOrderByNombreAsc());
+        model.addAttribute("categoriaSeleccionada", categoriaId);
+        model.addAttribute("busqueda", q);
+        return "coleccion";
     }
 
     // Detalle de un producto (equivalente a app/producto/[id].tsx).
@@ -214,14 +263,132 @@ public class PageController {
             model.addAttribute("totalClientes", totalClientes);
             model.addAttribute("totalCategorias", categorias);
         } else {
-            String correo = auth != null ? auth.getName() : null;
-            Usuario cliente = (correo != null)
-                    ? usuarioRepository.findByCorreo(correo).orElse(null)
-                    : null;
             model.addAttribute("esAdmin", false);
+            Usuario cliente = clienteAutenticado();
             model.addAttribute("cliente", cliente);
+            if (cliente != null) {
+                cargarDatosCliente(model, cliente);
+            }
         }
         return "admin/inicio";
+    }
+
+    // ── Páginas del cliente fuera del dashboard principal ────────────────
+    // El home del cliente es un dashboard; el detalle queda en páginas aparte
+    // (/cliente/perfil, /cliente/compras, /cliente/pagos) enlazadas desde la
+    // barra lateral y los accesos rápidos del panel.
+    @GetMapping("/cliente/perfil")
+    public String clientePerfil(Model model) {
+        Usuario cliente = clienteAutenticado();
+        if (cliente == null) {
+            return "redirect:/admin";
+        }
+        model.addAttribute("cliente", cliente);
+        cargarDatosCliente(model, cliente);
+        model.addAttribute("currentPage", "perfilCliente");
+        return "cliente/perfil";
+    }
+
+    @GetMapping("/cliente/compras")
+    public String clienteCompras(Model model) {
+        Usuario cliente = clienteAutenticado();
+        if (cliente == null) {
+            return "redirect:/admin";
+        }
+        model.addAttribute("esAdmin", false);
+        model.addAttribute("cliente", cliente);
+        cargarDatosCliente(model, cliente);
+        model.addAttribute("currentPage", "comprasCliente");
+        return "cliente/compras";
+    }
+
+    @GetMapping("/cliente/pagos")
+    public String clientePagos(Model model) {
+        Usuario cliente = clienteAutenticado();
+        if (cliente == null) {
+            return "redirect:/admin";
+        }
+        model.addAttribute("esAdmin", false);
+        model.addAttribute("cliente", cliente);
+        cargarDatosCliente(model, cliente);
+        model.addAttribute("currentPage", "pagosCliente");
+        return "cliente/pagos";
+    }
+
+    private Usuario clienteAutenticado() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String correo = auth != null ? auth.getName() : null;
+        return (correo != null) ? usuarioRepository.findByCorreo(correo).orElse(null) : null;
+    }
+
+    // Carga los datos de cuenta del cliente (pedidos con items, pagos y totales)
+    // compartidos entre el dashboard y las páginas /cliente/*.
+    private void cargarDatosCliente(Model model, Usuario cliente) {
+        List<Pedido> pedidos = pedidoRepository.findByClienteIdOrderByCreatedAtDesc(cliente.getId());
+        List<DetallePedido> detalles = pedidos.isEmpty()
+                ? List.of()
+                : pedidos.stream()
+                        .flatMap(p -> detallePedidoRepository.findByPedidoIdOrderByIdAsc(p.getId()).stream())
+                        .toList();
+        Map<Integer, Producto> productosPorId = detalles.stream()
+                .map(DetallePedido::getProductoId)
+                .distinct()
+                .map(id -> productoRepository.findById(id).orElse(null))
+                .filter(Objects::nonNull)
+                .collect(Collectors.toMap(Producto::getId, p -> p, (a, b) -> a));
+
+        List<PedidoView> misPedidos = pedidos.stream()
+                .map(p -> {
+                    List<ItemView> items = detallePedidoRepository.findByPedidoIdOrderByIdAsc(p.getId()).stream()
+                            .map(d -> new ItemView(d, productosPorId.get(d.getProductoId())))
+                            .toList();
+                    Pago pago = pagoRepository.findTopByPedidoIdOrderByIdDesc(p.getId()).orElse(null);
+                    return new PedidoView(p, items, pago);
+                })
+                .toList();
+
+        List<Pago> misPagos = pagoRepository.findByUsuarioIdOrderByIdDesc(cliente.getId());
+        long pagosPendientes = misPagos.stream()
+                .filter(p -> p.getEstado() == EstadoPago.PENDIENTE)
+                .count();
+
+        BigDecimal totalInvertido = misPedidos.stream()
+                .map(PedidoView::pedido)
+                .map(Pedido::getTotal)
+                .filter(Objects::nonNull)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+        long pedidosEntregados = misPedidos.stream()
+                .map(PedidoView::pedido)
+                .filter(p -> "entregado".equalsIgnoreCase(p.getEstado()))
+                .count();
+        long pedidosEnProceso = misPedidos.stream()
+                .map(PedidoView::pedido)
+                .filter(p -> p.getEstado() != null
+                        && !"entregado".equalsIgnoreCase(p.getEstado())
+                        && !"cancelado".equalsIgnoreCase(p.getEstado()))
+                .count();
+
+        model.addAttribute("misPedidos", misPedidos);
+        model.addAttribute("misPagos", misPagos);
+        model.addAttribute("pagosPendientes", pagosPendientes);
+        model.addAttribute("totalInvertido", totalInvertido);
+        model.addAttribute("pedidosEntregados", pedidosEntregados);
+        model.addAttribute("pedidosEnProceso", pedidosEnProceso);
+
+        long pagosAprobados = misPagos.stream()
+                .filter(p -> p.getEstado() == EstadoPago.APROBADO)
+                .count();
+        long pagosRechazados = misPagos.stream()
+                .filter(p -> p.getEstado() == EstadoPago.RECHAZADO)
+                .count();
+        BigDecimal montoAprobado = misPagos.stream()
+                .filter(p -> p.getEstado() == EstadoPago.APROBADO)
+                .map(Pago::getTotal)
+                .filter(Objects::nonNull)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+        model.addAttribute("pagosAprobados", pagosAprobados);
+        model.addAttribute("pagosRechazados", pagosRechazados);
+        model.addAttribute("montoAprobado", montoAprobado);
     }
 
     private String homePorRol(Authentication auth) {
@@ -239,4 +406,9 @@ public class PageController {
         }
         return false;
     }
+
+    // ── Vistas auxiliares para "mis compras" del cliente ─────────────────
+    public record ItemView(DetallePedido detalle, Producto producto) {}
+
+    public record PedidoView(Pedido pedido, List<ItemView> items, Pago pago) {}
 }

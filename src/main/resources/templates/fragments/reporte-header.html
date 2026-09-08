@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<!-- Barra superior de acciones (se oculta al imprimir) -->
+<th:block th:fragment="reporte-topbar(excelUrl, mostrarVolver)">
+    <div class="no-print reporte-topbar d-flex flex-wrap align-items-center justify-content-end gap-2">
+        <a th:if="${mostrarVolver}" th:href="@{/admin/reportes}" class="btn btn-sm btn-ol-outline rounded-pill fw-bold"><i class="bi bi-arrow-left me-1"></i>Volver</a>
+        <a th:if="${excelUrl != null}" th:href="${excelUrl}" class="btn btn-sm btn-ol-outline rounded-pill fw-bold"><i class="bi bi-file-earmark-excel me-1"></i>EXCEL</a>
+        <button type="button" class="btn btn-sm btn-ol-gold rounded-pill fw-bold" onclick="window.print()"><i class="bi bi-printer me-1"></i>PDF</button>
+    </div>
+</th:block>
+
+<!-- Encabezado con el logo y datos de la empresa (centrado) -->
+<th:block th:fragment="reporte-empresa">
+    <div class="reporte-empresa text-center">
+        <div class="reporte-logo-wrap">
+            <img th:src="@{/marca/logo.png}" alt="Logo" class="reporte-logo">
+        </div>
+        <div class="reporte-razon" th:text="${emp.nombreTienda}"></div>
+        <div class="reporte-sub">Reporte empresarial</div>
+        <div class="reporte-contacto">
+            <span class="reporte-contacto-item"><strong>NIT:</strong> <span th:text="${emp.nit}"></span></span>
+            <span class="reporte-contacto-item"><strong>Tel:</strong> <span th:text="${emp.telefono}"></span></span>
+            <span class="reporte-contacto-item"><strong>Correo:</strong> <span th:text="${emp.correo}"></span></span>
+        </div>
+    </div>
+    <div class="reporte-borde mt-3 mb-3"></div>
+    <div class="text-center">
+        <h4 class="reporte-titulo mb-0" th:text="${tituloReporte}"></h4>
+        <div class="small reporte-fecha mt-1">
+            <i class="bi bi-calendar-event me-1"></i>
+            Generado el <span th:text="${fechaGeneracion}"></span> por <strong th:text="${usuarioReporte}"></strong>
+        </div>
+    </div>
+</th:block>
+
+</body>
+</html>

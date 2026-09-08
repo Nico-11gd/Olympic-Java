@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Reporte de inventario — Olympic Store</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <link th:href="@{/css/olympic.css}" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <style>
+        @page { size: A4 landscape; margin: 0; }
+    </style>
+</head>
+<body class="pagina-reportes">
+
+<div th:replace="~{fragments/admin-header :: admin-header(currentPage='reportes')}"></div>
+<div th:replace="~{fragments/reporte-header :: reporte-topbar(@{/admin/reportes/inventario/excel(desde=${desdeStr}, hasta=${hastaStr}, tipo=${tipoSeleccionado})}, true)}"></div>
+
+<div class="container px-3 pb-5">
+
+<div class="reporte-paper">
+    <th:block th:replace="~{fragments/reporte-header :: reporte-empresa}"></th:block>
+
+    <form method="get" th:action="@{/admin/reportes/inventario}" class="no-print reporte-filtros d-flex flex-wrap gap-2 align-items-end mt-3">
+        <div>
+            <label class="small fw-semibold">Desde</label>
+            <input type="date" name="desde" class="form-control form-control-sm" th:value="${desdeStr}">
+        </div>
+        <div>
+            <label class="small fw-semibold">Hasta</label>
+            <input type="date" name="hasta" class="form-control form-control-sm" th:value="${hastaStr}">
+        </div>
+        <div>
+            <label class="small fw-semibold">Tipo</label>
+            <select name="tipo" class="form-select form-select-sm">
+                <option value="todos" th:selected="${tipoSeleccionado == 'todos'}">Todos</option>
+                <option th:each="t : ${tiposMovimiento}" th:value="${t.valor}" th:selected="${tipoSeleccionado == t.valor}" th:text="${#strings.capitalize(t.valor)}"></option>
+            </select>
+        </div>
+        <button type="submit" class="btn btn-sm btn-ol-gold fw-bold rounded-pill"><i class="bi bi-funnel me-1"></i>Filtrar</button>
+    </form>
+
+    <div class="row g-3 mt-1">
+        <div class="col-6 col-md-3">
+            <div class="reporte-kpi">
+                <div class="small text-muted text-uppercase">Entradas</div>
+                <div class="fs-4 fw-bold text-success" th:text="${totalEntradas}"></div>
+                <div class="small text-muted">unidades en el período</div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="reporte-kpi">
+                <div class="small text-muted text-uppercase">Salidas</div>
+                <div class="fs-4 fw-bold text-danger" th:text="${totalSalidas}"></div>
+                <div class="small text-muted">unidades en el período</div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="reporte-kpi">
+                <div class="small text-muted text-uppercase">Unidades actuales</div>
+                <div class="fs-4 fw-bold" th:text="${stockTotal}"></div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="reporte-kpi">
+                <div class="small text-muted text-uppercase">Valor inventario</div>
+                <div class="fs-4 fw-bold">$<span th:text="${#numbers.formatDecimal(valorInventario, 1, 2)}"></span></div>
+                <div class="small text-danger" th:text="${stockBajo} + ' productos bajo stock'"></div>
+            </div>
+        </div>
+    </div>
+
+    <h6 class="reporte-seccion mt-4">Estado actual del inventario</h6>
+    <div class="table-responsive">
+        <table class="table table-sm reporte-tabla">
+            <thead>
+                <tr>
+                    <th>Código</th>
+                    <th>Producto</th>
+                    <th class="text-end">Stock</th>
+                    <th class="text-end">Precio venta</th>
+                    <th class="text-end">Valor</th>
+                    <th>Estado</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="p : ${productos}">
+                    <td th:text="${p.codigo != null ? p.codigo : '-'}"></td>
+                    <td class="fw-semibold" th:text="${p.nombre}"></td>
+                    <td class="text-end"
+                        th:classappend="${p.stock != null and p.stock == 0} ? 'text-danger fw-bold' : (${p.stock != null and p.stock <= 5} ? 'text-warning fw-bold' : '')"
+                        th:text="${p.stock}"></td>
+                    <td class="text-end">$<span th:text="${#numbers.formatDecimal(p.offerPrice != null ? p.offerPrice : p.precio, 1, 2)}"></span></td>
+                    <td class="text-end fw-semibold">$<span th:text="${#numbers.formatDecimal((p.offerPrice != null ? p.offerPrice : p.precio) * (p.stock != null ? p.stock : 0), 1, 2)}"></span></td>
+                    <td>
+                        <span th:if="${not p.activo}" class="badge rounded-pill text-bg-secondary">Inactivo</span>
+                        <span th:if="${p.activo and p.stock != null and p.stock == 0}" class="badge rounded-pill text-bg-danger">Agotado</span>
+                        <span th:if="${p.activo and p.stock != null and p.stock > 0 and p.stock <= 5}" class="badge rounded-pill text-bg-warning">Stock bajo</span>
+                        <span th:if="${p.activo and p.stock != null and p.stock > 5}" class="badge rounded-pill" style="background:#198754;">Disponible</span>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <h6 class="reporte-seccion mt-4">Movimientos del período</h6>
+    <div class="table-responsive">
+        <table class="table table-sm reporte-tabla">
+            <thead>
+                <tr>
+                    <th>Fecha</th>
+                    <th>Producto</th>
+                    <th>Tipo</th>
+                    <th class="text-end">Cantidad</th>
+                    <th class="text-end">Stock anterior</th>
+                    <th class="text-end">Stock actual</th>
+                    <th>Motivo</th>
+                    <th>Usuario</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="m : ${movimientos}">
+                    <td th:text="${m.createdAt != null ? #temporals.format(m.createdAt, 'dd/MM/yyyy HH:mm') : '-'}"></td>
+                    <td class="fw-semibold" th:text="${m.productoNombre}"></td>
+                    <td>
+                        <span class="badge rounded-pill"
+                              th:classappend="${m.tipo != null and (m.tipo.name() == 'ENTRADA' or m.tipo.name() == 'DEVOLUCION' or (m.tipo.name() == 'AJUSTE' and m.cantidad > 0))} ? 'text-bg-success' : 'text-bg-danger'"
+                              th:text="${m.tipo != null ? #strings.capitalize(m.tipo.valor) : '-'}"></span>
+                    </td>
+                    <td class="text-end" th:text="${m.cantidad}"></td>
+                    <td class="text-end" th:text="${m.stockAnterior}"></td>
+                    <td class="text-end" th:text="${m.stockActual}"></td>
+                    <td th:text="${m.motivo != null ? m.motivo : '-'}"></td>
+                    <td th:text="${m.usuario}"></td>
+                </tr>
+                <tr th:if="${#lists.isEmpty(movimientos)}">
+                    <td colspan="8" class="text-center text-muted py-4">No hay movimientos para los filtros seleccionados.</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <h6 class="reporte-seccion mt-4">Gráficos</h6>
+    <div class="row g-3">
+        <div class="col-lg-7">
+            <div class="reporte-grafico">
+                <div class="small fw-semibold mb-2">Entradas vs salidas por día</div>
+                <canvas id="graficoMovimientos" height="100"></canvas>
+            </div>
+        </div>
+        <div class="col-lg-5">
+            <div class="reporte-grafico">
+                <div class="small fw-semibold mb-2">Movimientos por tipo</div>
+                <div style="max-width:300px; margin:0 auto;"><canvas id="graficoTipo" height="170"></canvas></div>
+            </div>
+        </div>
+    </div>
+
+</div>
+</div>
+
+<script th:inline="javascript">
+    var labelsDias = /*[[${labelsDias}]]*/ [];
+    var entradasDias = /*[[${entradasDias}]]*/ [];
+    var salidasDias = /*[[${salidasDias}]]*/ [];
+    var labelsTipo = /*[[${labelsTipo}]]*/ [];
+    var valoresTipo = /*[[${valoresTipo}]]*/ [];
+    var paleta = ['#2d8a4e', '#dc3545', '#d4af37', '#1b2a4e', '#b97a1f', '#57606f'];
+
+    if (labelsDias.length) {
+        new Chart(document.getElementById('graficoMovimientos'), {
+            type: 'bar',
+            data: {
+                labels: labelsDias,
+                datasets: [
+                    { label: 'Entradas', data: entradasDias, backgroundColor: 'rgba(45,138,78,.85)', borderColor: '#2d8a4e', borderWidth: 1, borderRadius: 4 },
+                    { label: 'Salidas', data: salidasDias, backgroundColor: 'rgba(220,53,69,.75)', borderColor: '#dc3545', borderWidth: 1, borderRadius: 4 }
+                ]
+            },
+            options: { responsive: true, scales: { y: { beginAtZero: true } } }
+        });
+    } else {
+        document.getElementById('graficoMovimientos').closest('.reporte-grafico').innerHTML = '<div class="text-muted small">Sin datos para el período.</div>';
+    }
+
+    if (labelsTipo.length) {
+        new Chart(document.getElementById('graficoTipo'), {
+            type: 'doughnut',
+            data: {
+                labels: labelsTipo,
+                datasets: [{ data: valoresTipo, backgroundColor: paleta, borderWidth: 2, borderColor: '#ffffff' }]
+            },
+            options: { responsive: true, plugins: { legend: { position: 'bottom' } } }
+        });
+    } else {
+        document.getElementById('graficoTipo').closest('.reporte-grafico').innerHTML = '<div class="text-muted small">Sin datos para el período.</div>';
+    }
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

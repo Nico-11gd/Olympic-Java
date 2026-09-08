@@ -5,14 +5,14 @@
 <th:block th:fragment="admin-header(currentPage)">
 
 <!-- SIDEBAR -->
-<div class="offcanvas offcanvas-start text-bg-dark sidebar-ol" tabindex="-1" id="adminSidebar"
+<div class="offcanvas offcanvas-start sidebar-ol" tabindex="-1" id="adminSidebar"
      aria-labelledby="adminSidebarLabel" style="width:300px;">
 
     <div class="offcanvas-header sidebar-divider">
         <div class="d-flex align-items-center gap-2" id="adminSidebarLabel">
-            <img th:src="@{/marca/logo.png}" alt="Olympic Store" style="height:30px; width:auto; object-fit:contain;">
+            <img th:src="@{/marca/logo-black.png}" alt="Olympic Store" style="height:48px; width:auto; object-fit:contain;">
         </div>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Cerrar"></button>
+        <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Cerrar"></button>
     </div>
 
     <div class="offcanvas-body p-0 d-flex flex-column overflow-hidden">
@@ -26,6 +26,37 @@
                 <i class="bi bi-speedometer2 fs-5" style="color:var(--ol-gold); width:22px; text-align:center;"></i>
                 <span class="fw-semibold">Inicio</span>
             </a>
+
+            <div sec:authorize="hasRole('CLIENTE')">
+                <p class="text-uppercase small fw-semibold px-3 mt-3 mb-1"
+                   style="color:var(--ol-text-muted); font-size:.65rem; letter-spacing:1px;">Mi cuenta</p>
+                <a th:href="@{/cliente/perfil}" class="d-flex align-items-center gap-3 px-3 py-2 text-decoration-none"
+                   th:classappend="${currentPage == 'perfilCliente'} ? 'sidebar-active' : ''"
+                   style="color:var(--ol-text);">
+                    <i class="bi bi-person-circle fs-5" style="color:var(--ol-gold); width:22px; text-align:center;"></i>
+                    <span class="fw-semibold">Mi perfil</span>
+                </a>
+                <a th:href="@{/cliente/compras}" class="d-flex align-items-center gap-3 px-3 py-2 text-decoration-none"
+                   th:classappend="${currentPage == 'comprasCliente'} ? 'sidebar-active' : ''"
+                   style="color:var(--ol-text);">
+                    <i class="bi bi-bag-check fs-5" style="color:var(--ol-gold); width:22px; text-align:center;"></i>
+                    <span class="fw-semibold">Mis compras</span>
+                </a>
+                <a th:href="@{/cliente/pagos}" class="d-flex align-items-center gap-3 px-3 py-2 text-decoration-none"
+                   th:classappend="${currentPage == 'pagosCliente'} ? 'sidebar-active' : ''"
+                   style="color:var(--ol-text);">
+                    <i class="bi bi-credit-card fs-5" style="color:var(--ol-gold); width:22px; text-align:center;"></i>
+                    <span class="fw-semibold">Mis pagos</span>
+                </a>
+                <a href="#" data-bs-toggle="modal" data-bs-target="#modalEditarPerfil" class="d-flex align-items-center gap-3 px-3 py-2 text-decoration-none" style="color:var(--ol-text);">
+                    <i class="bi bi-person-gear fs-5" style="color:var(--ol-gold); width:22px; text-align:center;"></i>
+                    <span class="fw-semibold">Editar datos</span>
+                </a>
+                <a href="#" data-bs-toggle="modal" data-bs-target="#modalFotoPerfilAdmin" class="d-flex align-items-center gap-3 px-3 py-2 text-decoration-none" style="color:var(--ol-text);">
+                    <i class="bi bi-camera fs-5" style="color:var(--ol-gold); width:22px; text-align:center;"></i>
+                    <span class="fw-semibold">Cambiar foto</span>
+                </a>
+            </div>
 
             <div sec:authorize="hasRole('ADMIN')">
                 <p class="text-uppercase small fw-semibold px-3 mt-3 mb-1"
@@ -49,11 +80,15 @@
                     <i class="bi bi-cart-check fs-5" style="color:var(--ol-gold); width:22px; text-align:center;"></i>
                     <span class="fw-semibold">Ventas</span>
                 </a>
-                <a href="#reportes" class="d-flex align-items-center gap-3 px-3 py-2 text-decoration-none" style="color:var(--ol-text);">
+                <a th:href="@{/admin/reportes}" class="d-flex align-items-center gap-3 px-3 py-2 text-decoration-none"
+                   th:classappend="${currentPage == 'reportes'} ? 'sidebar-active' : ''"
+                   style="color:var(--ol-text);">
                     <i class="bi bi-bar-chart fs-5" style="color:var(--ol-gold); width:22px; text-align:center;"></i>
                     <span class="fw-semibold">Reportes</span>
                 </a>
-                <a href="#pagos" class="d-flex align-items-center gap-3 px-3 py-2 text-decoration-none" style="color:var(--ol-text);">
+                <a th:href="@{/admin/pagos}" class="d-flex align-items-center gap-3 px-3 py-2 text-decoration-none"
+                   th:classappend="${currentPage == 'pagos'} ? 'sidebar-active' : ''"
+                   style="color:var(--ol-text);">
                     <i class="bi bi-credit-card fs-5" style="color:var(--ol-gold); width:22px; text-align:center;"></i>
                     <span class="fw-semibold">Pagos</span>
                 </a>
@@ -68,7 +103,9 @@
                     <i class="bi bi-arrow-counterclockwise fs-5" style="color:var(--ol-gold); width:22px; text-align:center;"></i>
                     <span class="fw-semibold">Devoluciones</span>
                 </a>
-                <a href="#inventario" class="d-flex align-items-center gap-3 px-3 py-2 text-decoration-none" style="color:var(--ol-text);">
+                <a th:href="@{/admin/inventario}" class="d-flex align-items-center gap-3 px-3 py-2 text-decoration-none"
+                   th:classappend="${currentPage == 'inventario'} ? 'sidebar-active' : ''"
+                   style="color:var(--ol-text);">
                     <i class="bi bi-boxes fs-5" style="color:var(--ol-gold); width:22px; text-align:center;"></i>
                     <span class="fw-semibold">Inventario</span>
                 </a>
@@ -89,7 +126,7 @@
 </div>
 
 <!-- HEADER -->
-<header class="d-flex flex-wrap align-items-center justify-content-between px-3 px-md-4 py-2 gap-2 header-ol">
+<header class="d-flex flex-wrap align-items-center justify-content-between px-3 px-md-4 py-2 gap-2 header-ol position-relative">
     <div class="d-flex align-items-center gap-3">
         <button class="btn p-0 border-0" type="button" data-bs-toggle="offcanvas"
                 data-bs-target="#adminSidebar" aria-controls="adminSidebar" title="Abrir menú">
@@ -104,8 +141,9 @@
         </a>
     </div>
 
+    <img th:src="@{/marca/logo-black.png}" alt="Olympic Store" class="header-logo-center">
+
     <div class="d-flex align-items-center gap-2">
-        <img th:src="@{/marca/logo.png}" alt="Olympic Store" style="height:28px; width:auto; object-fit:contain;">
 
         <!-- Avatar dropdown -->
         <div class="dropdown">
@@ -129,6 +167,7 @@
                     </div>
                 </li>
                 <li><a class="dropdown-item" th:href="@{/admin}"><i class="bi bi-house-door me-2"></i>Mi panel</a></li>
+                <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#modalEditarPerfil"><i class="bi bi-person-gear me-2"></i>Editar datos</a></li>
                 <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#modalFotoPerfilAdmin"><i class="bi bi-camera me-2"></i>Cambiar foto</a></li>
                 <li><hr class="dropdown-divider"></li>
                 <li>
@@ -143,6 +182,53 @@
     </div>
 </header>
 
+<!-- Flash de perfil: visible en todas las páginas del panel -->
+        <div class="container-fluid px-3 px-md-4 px-lg-5 mt-3">
+            <div th:if="${perfilMensaje}" class="alert alert-success mb-0" th:text="${perfilMensaje}"></div>
+            <div th:if="${perfilError}" class="alert alert-danger mb-0" th:text="${perfilError}"></div>
+        </div>
+
+<!-- Modal editar datos personales (compartido clientes y admins) -->
+<div class="modal fade" id="modalEditarPerfil" tabindex="-1" aria-labelledby="modalEditarPerfilLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" style="background:var(--ol-card); border:1px solid var(--ol-border); border-radius:18px;">
+            <div class="modal-header border-0 pb-0">
+                <h5 class="modal-title fw-bold" id="modalEditarPerfilLabel" style="color:var(--ol-white);">
+                    <i class="bi bi-person-gear me-2" style="color:var(--ol-gold);"></i>Editar mi información
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body">
+                <form th:action="@{/perfil/actualizar}" method="post">
+                    <div class="mb-3">
+                        <label for="perfilNombre" class="small fw-semibold" style="color:var(--ol-text-muted);">Nombre de usuario</label>
+                        <input type="text" id="perfilNombre" name="nombre" class="form-control" required minlength="2"
+                               th:value="${usuarioActual != null ? usuarioActual.nombre : ''}" placeholder="Tu nombre">
+                    </div>
+                    <div class="small text-ol-muted mb-2">Deja vacíos los campos de contraseña si no quieres cambiarla.</div>
+                    <div class="mb-3">
+                        <label for="perfilPassActual" class="small fw-semibold" style="color:var(--ol-text-muted);">Contraseña actual</label>
+                        <input type="password" id="perfilPassActual" name="passwordActual" class="form-control" autocomplete="current-password" placeholder="Solo para cambiar la contraseña">
+                    </div>
+                    <div class="row g-3">
+                        <div class="col-6">
+                            <label for="perfilPassNueva" class="small fw-semibold" style="color:var(--ol-text-muted);">Nueva contraseña</label>
+                            <input type="password" id="perfilPassNueva" name="nuevaPassword" class="form-control" autocomplete="new-password" placeholder="Mín. 6 caracteres">
+                        </div>
+                        <div class="col-6">
+                            <label for="perfilPassConfirmar" class="small fw-semibold" style="color:var(--ol-text-muted);">Confirmar contraseña</label>
+                            <input type="password" id="perfilPassConfirmar" name="confirmarPassword" class="form-control" autocomplete="new-password" placeholder="Repite la contraseña">
+                        </div>
+                    </div>
+                    <button type="submit" class="btn w-100 fw-bold py-2 rounded-pill btn-ol-gold mt-4">
+                        <i class="bi bi-check-lg me-1"></i>GUARDAR CAMBIOS
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- Modal foto de perfil (admin) -->
 <div class="modal fade" id="modalFotoPerfilAdmin" tabindex="-1" aria-labelledby="modalFotoPerfilAdminLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
@@ -151,7 +237,7 @@
                 <h5 class="modal-title fw-bold" id="modalFotoPerfilAdminLabel" style="color:var(--ol-white);">
                     <i class="bi bi-camera me-2" style="color:var(--ol-gold);"></i>Foto de perfil
                 </h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
             </div>
             <div class="modal-body">
                 <div class="text-center mb-3">
@@ -187,7 +273,6 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-<script th:src="@{/js/tema.js}"></script>
 
 </th:block>
 

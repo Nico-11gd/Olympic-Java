@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Reporte de pagos — Olympic Store</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <link th:href="@{/css/olympic.css}" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <style>
+        @page { size: A4 landscape; margin: 0; }
+    </style>
+</head>
+<body class="pagina-reportes">
+
+<div th:replace="~{fragments/admin-header :: admin-header(currentPage='reportes')}"></div>
+<div th:replace="~{fragments/reporte-header :: reporte-topbar(@{/admin/reportes/pagos/excel(desde=${desdeStr}, hasta=${hastaStr}, estado=${estadoSeleccionado}, metodo=${metodoSeleccionado})}, true)}"></div>
+
+<div class="container px-3 pb-5">
+
+<div class="reporte-paper">
+    <th:block th:replace="~{fragments/reporte-header :: reporte-empresa}"></th:block>
+
+    <!-- Filtros -->
+    <form method="get" th:action="@{/admin/reportes/pagos}" class="no-print reporte-filtros d-flex flex-wrap gap-2 align-items-end mt-3">
+        <div>
+            <label class="small fw-semibold">Desde</label>
+            <input type="date" name="desde" class="form-control form-control-sm" th:value="${desdeStr}">
+        </div>
+        <div>
+            <label class="small fw-semibold">Hasta</label>
+            <input type="date" name="hasta" class="form-control form-control-sm" th:value="${hastaStr}">
+        </div>
+        <div>
+            <label class="small fw-semibold">Estado</label>
+            <select name="estado" class="form-select form-select-sm">
+                <option value="todos" th:selected="${estadoSeleccionado == 'todos'}">Todos</option>
+                <option th:each="e : ${estadosPago}" th:value="${e.valor}" th:selected="${estadoSeleccionado == e.valor}" th:text="${#strings.capitalize(e.valor)}"></option>
+            </select>
+        </div>
+        <div>
+            <label class="small fw-semibold">Método</label>
+            <select name="metodo" class="form-select form-select-sm">
+                <option value="todos" th:selected="${metodoSeleccionado == 'todos'}">Todos</option>
+                <option th:each="m : ${metodosPago}" th:value="${m.valor}" th:selected="${metodoSeleccionado == m.valor}" th:text="${#strings.capitalize(m.valor)}"></option>
+            </select>
+        </div>
+        <button type="submit" class="btn btn-sm btn-ol-gold fw-bold rounded-pill"><i class="bi bi-funnel me-1"></i>Filtrar</button>
+    </form>
+
+    <!-- Resumen -->
+    <div class="row g-3 mt-1">
+        <div class="col-6 col-md-3">
+            <div class="reporte-kpi">
+                <div class="small text-muted text-uppercase">Total registrado</div>
+                <div class="fs-4 fw-bold">$<span th:text="${#numbers.formatDecimal(totalGeneral, 1, 2)}"></span></div>
+                <div class="small text-muted" th:text="${#lists.size(pagos)} + ' pagos'"></div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="reporte-kpi">
+                <div class="small text-muted text-uppercase">Aprobados</div>
+                <div class="fs-4 fw-bold text-success">$<span th:text="${#numbers.formatDecimal(resumen.montoAprobado, 1, 2)}"></span></div>
+                <div class="small text-muted" th:text="${resumen.aprobados} + ' pagos'"></div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="reporte-kpi">
+                <div class="small text-muted text-uppercase">Pendientes</div>
+                <div class="fs-4 fw-bold text-warning">$<span th:text="${#numbers.formatDecimal(resumen.montoPendiente, 1, 2)}"></span></div>
+                <div class="small text-muted" th:text="${resumen.pendientes} + ' pagos'"></div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="reporte-kpi">
+                <div class="small text-muted text-uppercase">Rechazados</div>
+                <div class="fs-4 fw-bold text-danger">$<span th:text="${#numbers.formatDecimal(resumen.montoRechazado, 1, 2)}"></span></div>
+                <div class="small text-muted" th:text="${resumen.rechazados} + ' pagos'"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tabla -->
+    <h6 class="reporte-seccion mt-4">Detalle de pagos</h6>
+    <div class="table-responsive">
+        <table class="table table-sm reporte-tabla">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Fecha</th>
+                    <th>Pedido</th>
+                    <th>Cliente</th>
+                    <th>Método</th>
+                    <th>Estado</th>
+                    <th class="text-end">Total</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="p : ${pagos}">
+                    <td th:text="${p.id}"></td>
+                    <td th:text="${p.createdAt != null ? #temporals.format(p.createdAt, 'dd/MM/yyyy HH:mm') : '-'}"></td>
+                    <td th:text="${p.pedidoId != null} ? '#' + ${p.pedidoId} : '-'"></td>
+                    <td>
+                        <span th:text="${p.nombre}" class="fw-semibold"></span>
+                        <span th:if="${p.clienteCorreo}" class="d-block small text-muted" th:text="${p.clienteCorreo}"></span>
+                    </td>
+                    <td th:text="${p.metodo != null} ? ${#strings.capitalize(p.metodo.valor)} : '-'"></td>
+                    <td>
+                        <span th:switch="${p.estado != null ? p.estado.name() : 'SIN_ESTADO'}" class="badge rounded-pill">
+                            <span th:case="'APROBADO'" class="badge rounded-pill" style="background:#198754;">Aprobado</span>
+                            <span th:case="'PENDIENTE'" class="badge rounded-pill text-dark" style="background:#ffc107;">Pendiente</span>
+                            <span th:case="'RECHAZADO'" class="badge rounded-pill" style="background:#dc3545;">Rechazado</span>
+                            <span th:case="*" class="badge rounded-pill text-bg-secondary">-</span>
+                        </span>
+                    </td>
+                    <td class="text-end fw-semibold">$<span th:text="${#numbers.formatDecimal(p.total, 1, 2)}"></span></td>
+                </tr>
+                <tr th:if="${#lists.isEmpty(pagos)}">
+                    <td colspan="7" class="text-center text-muted py-4">No hay pagos para los filtros seleccionados.</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Gráficos -->
+    <h6 class="reporte-seccion mt-4">Gráficos</h6>
+    <div class="row g-3">
+        <div class="col-lg-7">
+            <div class="reporte-grafico">
+                <div class="small fw-semibold mb-2">Recaudo por día</div>
+                <canvas id="graficoDias" height="100"></canvas>
+            </div>
+        </div>
+        <div class="col-lg-5">
+            <div class="reporte-grafico">
+                <div class="small fw-semibold mb-2">Recaudo por método de pago</div>
+                <div style="max-width:300px; margin:0 auto;"><canvas id="graficoMetodo" height="170"></canvas></div>
+            </div>
+        </div>
+    </div>
+
+</div>
+</div>
+
+<script th:inline="javascript">
+    var labelsDias = /*[[${labelsDias}]]*/ [];
+    var valoresDias = /*[[${valoresDias}]]*/ [];
+    var labelsMetodo = /*[[${labelsMetodo}]]*/ [];
+    var valoresMetodo = /*[[${valoresMetodo}]]*/ [];
+    var paleta = ['#d4af37', '#1b2a4e', '#2d8a4e', '#b97a1f', '#7a5c2e', '#57606f'];
+
+    if (labelsDias.length) {
+        new Chart(document.getElementById('graficoDias'), {
+            type: 'bar',
+            data: {
+                labels: labelsDias,
+                datasets: [{ label: 'Recaudo ($)', data: valoresDias,
+                    backgroundColor: 'rgba(212,175,55,.85)', borderColor: '#d4af37', borderWidth: 1, borderRadius: 4 }]
+            },
+            options: { responsive: true, plugins: { legend: { display: false } },
+                scales: { y: { beginAtZero: true } } }
+        });
+    } else {
+        document.getElementById('graficoDias').closest('.reporte-grafico').innerHTML = '<div class="text-muted small">Sin datos para el período.</div>';
+    }
+
+    if (labelsMetodo.length) {
+        new Chart(document.getElementById('graficoMetodo'), {
+            type: 'doughnut',
+            data: {
+                labels: labelsMetodo,
+                datasets: [{ data: valoresMetodo, backgroundColor: paleta, borderWidth: 2, borderColor: '#ffffff' }]
+            },
+            options: { responsive: true, plugins: { legend: { position: 'bottom' } } }
+        });
+    } else {
+        document.getElementById('graficoMetodo').closest('.reporte-grafico').innerHTML = '<div class="text-muted small">Sin datos para el período.</div>';
+    }
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

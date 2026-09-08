@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Mi perfil — Olympic Store</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <link th:href="@{/css/olympic.css}" rel="stylesheet">
+</head>
+<body>
+
+<div th:replace="~{fragments/admin-header :: admin-header(currentPage='perfilCliente')}"></div>
+
+<div class="container-fluid px-3 px-md-4 px-lg-5 py-4">
+
+    <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-4">
+        <div>
+            <span class="badge rounded-pill badge-ol-title mb-2">MI PERFIL</span>
+            <h1 class="fw-bold mb-0" style="color:var(--ol-white);">Mis datos personales</h1>
+            <p class="mb-0 mt-1" style="color:var(--ol-text-muted);">Consulta y actualiza la información de tu cuenta.</p>
+        </div>
+        <a th:href="@{/admin}" class="btn btn-sm btn-ol-outline rounded-pill">
+            <i class="bi bi-arrow-left me-1"></i>Volver al panel
+        </a>
+    </div>
+
+    <div class="row g-4">
+        <!-- Tarjeta de identidad -->
+        <div class="col-md-4">
+            <div class="card card-ol p-4 text-center h-100">
+                <div class="mb-3">
+                    <img th:if="${cliente.fotoPerfil != null}"
+                         th:src="@{'/imagenes/perfiles/' + ${cliente.fotoPerfil}}"
+                         class="avatar-ol-lg" alt="Foto de perfil">
+                    <div th:unless="${cliente.fotoPerfil != null}"
+                         class="avatar-ol-placeholder-lg mx-auto"
+                         th:text="${#strings.substring(cliente.nombre, 0, 1)}"></div>
+                </div>
+                <h5 class="fw-bold" style="color:var(--ol-white);" th:text="${cliente.nombre}"></h5>
+                <p class="small mb-3" style="color:var(--ol-text-muted);" th:text="${cliente.correo}"></p>
+                <span class="badge rounded-pill w-auto mx-auto badge-ol-role-cliente">Cliente</span>
+                <div class="d-flex flex-wrap justify-content-center gap-2 mt-4">
+                    <a href="#" class="btn btn-sm btn-ol-gold rounded-pill" data-bs-toggle="modal"
+                       data-bs-target="#modalEditarPerfil">
+                        <i class="bi bi-person-gear me-1"></i>Editar datos
+                    </a>
+                    <a href="#" class="btn btn-sm btn-ol-outline rounded-pill" data-bs-toggle="modal"
+                       data-bs-target="#modalFotoPerfilAdmin">
+                        <i class="bi bi-camera me-1"></i>Cambiar foto
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Detalle de la cuenta -->
+        <div class="col-md-8">
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <div class="card card-ol p-4 h-100">
+                        <i class="bi bi-person fs-3 mb-2" style="color:var(--ol-gold);"></i>
+                        <span class="small text-uppercase" style="color:var(--ol-text-muted);">Nombre</span>
+                        <span class="fw-bold text-break" style="color:var(--ol-white);" th:text="${cliente.nombre}"></span>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card card-ol p-4 h-100">
+                        <i class="bi bi-envelope fs-3 mb-2" style="color:var(--ol-gold);"></i>
+                        <span class="small text-uppercase" style="color:var(--ol-text-muted);">Correo</span>
+                        <span class="fw-bold text-break" style="color:var(--ol-white);" th:text="${cliente.correo}"></span>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card card-ol p-4 h-100">
+                        <i class="bi bi-person-badge fs-3 mb-2" style="color:var(--ol-gold);"></i>
+                        <span class="small text-uppercase" style="color:var(--ol-text-muted);">Rol</span>
+                        <span class="badge rounded-pill w-auto badge-ol-role-cliente">Cliente</span>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card card-ol p-4 h-100">
+                        <i class="bi bi-shield-check fs-3 mb-2" style="color:var(--ol-gold);"></i>
+                        <span class="small text-uppercase" style="color:var(--ol-text-muted);">Estado de cuenta</span>
+                        <span th:if="${cliente.activo}" class="badge rounded-pill w-auto text-bg-success">Activa</span>
+                        <span th:unless="${cliente.activo}" class="badge rounded-pill w-auto text-bg-danger">Inactiva</span>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card card-ol p-4 h-100">
+                        <i class="bi bi-bag-check fs-3 mb-2" style="color:var(--ol-gold);"></i>
+                        <span class="small text-uppercase" style="color:var(--ol-text-muted);">Compras</span>
+                        <span class="fw-bold" style="color:var(--ol-white);" th:text="${#lists.size(misPedidos)}"></span>
+                        <span class="small" style="color:var(--ol-text-muted);">pedidos registrados</span>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card card-ol p-4 h-100">
+                        <i class="bi bi-wallet2 fs-3 mb-2" style="color:var(--ol-gold);"></i>
+                        <span class="small text-uppercase" style="color:var(--ol-text-muted);">Pagos realizados</span>
+                        <span class="fw-bold" style="color:var(--ol-white);" th:text="${#lists.size(misPagos)}"></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row g-3 mt-1">
+                <div class="col-md-6">
+                    <a th:href="@{/cliente/compras}" class="card card-ol text-decoration-none p-4 h-100 d-flex align-items-center justify-content-between gap-2">
+                        <span class="d-flex align-items-center gap-3">
+                            <i class="bi bi-bag-check fs-2" style="color:var(--ol-gold);"></i>
+                            <span class="fw-semibold" style="color:var(--ol-white);">Ver mis compras</span>
+                        </span>
+                        <i class="bi bi-chevron-right" style="color:var(--ol-gold);"></i>
+                    </a>
+                </div>
+                <div class="col-md-6">
+                    <a th:href="@{/cliente/pagos}" class="card card-ol text-decoration-none p-4 h-100 d-flex align-items-center justify-content-between gap-2">
+                        <span class="d-flex align-items-center gap-3">
+                            <i class="bi bi-credit-card fs-2" style="color:var(--ol-gold);"></i>
+                            <span class="fw-semibold" style="color:var(--ol-white);">Ver mis pagos</span>
+                        </span>
+                        <i class="bi bi-chevron-right" style="color:var(--ol-gold);"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+</body>
+</html>

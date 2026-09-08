@@ -47,11 +47,11 @@ public class SecurityConfig {
         http
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
-                                "/", "/index", "/producto",
+                                "/", "/index", "/producto", "/coleccion",
                                 "/login", "/registro",
                                 "/recuperar-password", "/recuperar-password/**",
                                 "/carrito", "/carrito/**",
-                                "/imagenes/**", "/marca/**", "/favicon.ico",
+                                "/imagenes/**", "/marca/**", "/video/**", "/favicon.ico",
                                 "/css/**")
                         .permitAll()
                         // El dashboard (/admin) es la home por rol: cualquier usuario

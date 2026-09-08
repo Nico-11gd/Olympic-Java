@@ -11,12 +11,13 @@
         </div>
 
         <div th:if="${mensajeCarrito}" class="alert alert-success py-2 small mb-0 mx-4 mt-3" th:text="${mensajeCarrito}" style="border-radius:8px;"></div>
+        <div th:if="${errorCarrito}" class="alert alert-danger py-2 small mb-0 mx-4 mt-3" th:text="${errorCarrito}" style="border-radius:8px;"></div>
 
         <div th:if="${carritoItems == null or carritoItems.isEmpty()}" class="text-center text-ol-muted py-5 flex-grow-1">
             <i class="bi bi-cart fs-1 d-block mb-3"></i>
             <p class="mb-1 fw-semibold" style="color:var(--ol-white);">Tu carrito está vacío</p>
             <p class="small mb-3">Agrega productos para comenzar</p>
-            <a href="#" class="carrito-btn carrito-btn-primary" style="max-width:200px; display:inline-block;">Seguir comprando</a>
+            <a th:href="@{/coleccion}" class="carrito-btn carrito-btn-primary" style="max-width:200px; display:inline-block;">Seguir comprando</a>
         </div>
 
         <div th:unless="${carritoItems == null or carritoItems.isEmpty()}" class="carrito-body">
@@ -92,7 +93,7 @@
                 <span th:text="'$' + ${#numbers.formatDecimal(carritoTotal, 0, 'COMMA', 0, 'POINT')}"></span>
             </div>
 
-            <a sec:authorize="isAuthenticated()" href="#" class="carrito-btn carrito-btn-primary">
+            <a sec:authorize="isAuthenticated()" th:href="@{/checkout}" class="carrito-btn carrito-btn-primary">
                 <i class="bi bi-credit-card me-2"></i>FINALIZAR COMPRA
             </a>
             <a sec:authorize="!isAuthenticated()" th:href="@{/login}" class="carrito-btn carrito-btn-primary">
