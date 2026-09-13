@@ -3,6 +3,8 @@ package com.olympic.olympic.service.impl;
 import com.olympic.olympic.dto.ImagenSubidaResponse;
 import com.olympic.olympic.exception.ImagenInvalidaException;
 import com.olympic.olympic.service.ImagenProductoService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -23,6 +25,8 @@ import java.util.UUID;
  */
 @Service
 public class ImagenProductoServiceImpl implements ImagenProductoService {
+
+    private static final Logger log = LoggerFactory.getLogger(ImagenProductoServiceImpl.class);
 
     private static final String PREFIJO_URL = "/imagenes/";
 
@@ -73,6 +77,18 @@ public class ImagenProductoServiceImpl implements ImagenProductoService {
         }
 
         return new ImagenSubidaResponse(nombreFinal, PREFIJO_URL + nombreFinal);
+    }
+
+    @Override
+    public void eliminar(String nombreArchivo) {
+        if (nombreArchivo == null || nombreArchivo.isBlank()) {
+            return;
+        }
+        try {
+            Files.deleteIfExists(directorioSubida.resolve(nombreArchivo));
+        } catch (IOException e) {
+            log.warn("No se pudo borrar la imagen de producto '{}'", nombreArchivo, e);
+        }
     }
 
     private String extraerExtension(String nombreArchivo) {

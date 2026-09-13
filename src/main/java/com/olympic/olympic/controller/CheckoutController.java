@@ -277,7 +277,7 @@ public class CheckoutController {
                 .orElseThrow(() -> new RecursoNoEncontradoException("Pedido no encontrado."));
         if (!usuario.getId().equals(pedido.getClienteId())) {
             redirectAttributes.addFlashAttribute("error", "Este pedido no te pertenece.");
-            return "redirect:/admin";
+            return "redirect:/cliente";
         }
 
         Pago pago = pagoRepository.findTopByPedidoIdOrderByIdDesc(pedidoId).orElse(null);

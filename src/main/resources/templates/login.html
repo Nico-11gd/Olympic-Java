@@ -56,16 +56,16 @@
                                 <span class="input-group-text"><i class="bi bi-envelope"></i></span>
                                 <input type="email" name="correo" class="form-control" placeholder="tucorreo@ejemplo.com" autofocus required>
                             </div>
-                            <div class="invalid-feedback">Ingresa un correo válido.</div>
+                            <div id="correoFeedback" class="invalid-feedback">Ingresa un correo válido.</div>
                         </div>
 
                         <div class="mb-2">
                             <label class="form-label small fw-semibold">Contraseña <span class="text-danger">*</span></label>
                             <div class="input-group">
                                 <span class="input-group-text"><i class="bi bi-lock"></i></span>
-                                <input type="password" name="password" class="form-control" placeholder="••••••••" required minlength="6">
+                                <input type="password" name="password" class="form-control" placeholder="••••••••" required minlength="8" pattern="(?=.*[A-Z])(?=.*[a-z])(?=.*[0-9])(?=.*[^A-Za-z0-9]).+">
                             </div>
-                            <div class="invalid-feedback">Mínimo 6 caracteres.</div>
+                            <div id="passwordFeedback" class="invalid-feedback">Mínimo 8 caracteres, una mayúscula, una minúscula, un número y un símbolo.</div>
                         </div>
 
                         <div class="text-end mb-3">
@@ -87,5 +87,47 @@
     </div>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    (function () {
+        const form = document.querySelector('form.needs-validation');
+        const correoInput = form.querySelector('input[name="correo"]');
+        const passwordInput = form.querySelector('input[name="password"]');
+        const correoFeedback = document.getElementById('correoFeedback');
+        const passwordFeedback = document.getElementById('passwordFeedback');
+
+        // El correo debe empezar por una letra (nada de números ni caracteres especiales al inicio)
+        const EMAIL_REGEX = /^[a-zA-Z][a-zA-Z0-9._%+-]*@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+
+        function setFieldValidity(input, feedback, isValid) {
+            input.classList.toggle('is-invalid', !isValid);
+            input.classList.toggle('is-valid', isValid);
+            feedback.classList.toggle('d-block', !isValid);
+            return isValid;
+        }
+
+        function validateCorreo() {
+            return setFieldValidity(correoInput, correoFeedback, EMAIL_REGEX.test(correoInput.value.trim()));
+        }
+
+        function validatePassword() {
+            return setFieldValidity(passwordInput, passwordFeedback, passwordInput.checkValidity());
+        }
+
+        correoInput.addEventListener('input', validateCorreo);
+        passwordInput.addEventListener('input', validatePassword);
+
+        form.addEventListener('submit', function (event) {
+            const isCorreoValid = validateCorreo();
+            const isPasswordValid = validatePassword();
+
+            if (!isCorreoValid || !isPasswordValid) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
+
+            form.classList.add('was-validated');
+        });
+    })();
+</script>
 </body>
 </html>

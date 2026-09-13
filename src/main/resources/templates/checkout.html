@@ -21,6 +21,10 @@
         <i class="bi bi-exclamation-triangle-fill me-1"></i><span th:text="${errorCarrito}"></span>
         <a th:href="@{/coleccion}" class="float-end fw-semibold" style="color:#fff; text-decoration:underline;">Ir a la colección</a>
     </div>
+    <div id="errorCheckoutVacio" class="alert alert-danger py-2 small mb-3 d-none" style="border-radius:8px;">
+        <i class="bi bi-exclamation-triangle-fill me-1"></i>Tu carrito quedó vacío, no se puede confirmar el pedido.
+        <a th:href="@{/coleccion}" class="float-end fw-semibold" style="color:#fff; text-decoration:underline;">Ir a la colección</a>
+    </div>
 
     <form th:action="@{/checkout}" method="post" id="formCheckout" th:object="${checkout}">
         <div class="row g-4">
@@ -195,6 +199,20 @@
         document.getElementById('direccion').value = opt.dataset.dir || '';
         document.getElementById('referencias').value = opt.dataset.ref || '';
     }
+
+    document.getElementById('formCheckout').addEventListener('submit', function (e) {
+        var badge = document.getElementById('carritoBadge');
+        var contador = badge ? parseInt(badge.textContent, 10) || 0 : 0;
+        var vacio = !badge || badge.style.display === 'none' || contador <= 0;
+        if (vacio) {
+            e.preventDefault();
+            var aviso = document.getElementById('errorCheckoutVacio');
+            if (aviso) {
+                aviso.classList.remove('d-none');
+                aviso.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        }
+    });
 </script>
 </body>
 </html>

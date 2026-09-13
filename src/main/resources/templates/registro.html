@@ -43,7 +43,7 @@
                     <div th:if="${error}" class="alert alert-danger p-2 fs-6" th:text="${error}"></div>
 
                     <form th:action="@{/registro}" th:object="${registro}" method="post" class="text-start needs-validation" novalidate>
-                        <div class="mb-3">
+                        <div class="mb-3 campo-validacion">
                             <label class="form-label small fw-semibold">Nombre completo <span class="text-danger">*</span></label>
                             <div class="input-group">
                                 <span class="input-group-text"><i class="bi bi-person"></i></span>
@@ -53,7 +53,7 @@
                             <div class="text-danger small mt-1" th:if="${#fields.hasErrors('nombre')}" th:errors="*{nombre}"></div>
                         </div>
 
-                        <div class="mb-3">
+                        <div class="mb-3 campo-validacion">
                             <label class="form-label small fw-semibold">Correo electrónico <span class="text-danger">*</span></label>
                             <div class="input-group">
                                 <span class="input-group-text"><i class="bi bi-envelope"></i></span>
@@ -63,13 +63,13 @@
                             <div class="text-danger small mt-1" th:if="${#fields.hasErrors('correo')}" th:errors="*{correo}"></div>
                         </div>
 
-                        <div class="mb-4">
+                        <div class="mb-4 campo-validacion">
                             <label class="form-label small fw-semibold">Contraseña <span class="text-danger">*</span></label>
                             <div class="input-group">
                                 <span class="input-group-text"><i class="bi bi-lock"></i></span>
-                                <input type="password" th:field="*{password}" class="form-control" placeholder="Ej: Segura1!" required minlength="6" pattern="(?=.*[A-Z])(?=.*[a-z])(?=.*[0-9])(?=.*[^A-Za-z0-9]).+">
+                                <input type="password" th:field="*{password}" class="form-control" placeholder="Ej: Segura1!" required minlength="8" pattern="(?=.*[A-Z])(?=.*[a-z])(?=.*[0-9])(?=.*[^A-Za-z0-9]).+">
                             </div>
-                            <div class="invalid-feedback">Mínimo 6 caracteres, una mayúscula, una minúscula, un número y un símbolo.</div>
+                            <div class="invalid-feedback">Mínimo 8 caracteres, una mayúscula, una minúscula, un número y un símbolo.</div>
                             <div class="text-danger small mt-1" th:if="${#fields.hasErrors('password')}" th:errors="*{password}"></div>
                         </div>
 
@@ -88,5 +88,50 @@
     </div>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    (function () {
+        const form = document.querySelector('form.needs-validation');
+        const campos = form.querySelectorAll('.campo-validacion');
+
+        // Reutiliza las reglas ya declaradas en el HTML (required, minlength,
+        // pattern, type="email") a través de la Constraint Validation API,
+        // en vez de duplicarlas con expresiones regulares en JS.
+        function validarCampo(campo) {
+            const input = campo.querySelector('.form-control');
+            const feedback = campo.querySelector('.invalid-feedback');
+            const esValido = input.checkValidity();
+
+            input.classList.toggle('is-invalid', !esValido);
+            input.classList.toggle('is-valid', esValido);
+            if (feedback) {
+                feedback.classList.toggle('d-block', !esValido);
+            }
+
+            return esValido;
+        }
+
+        campos.forEach(function (campo) {
+            const input = campo.querySelector('.form-control');
+            input.addEventListener('input', function () { validarCampo(campo); });
+        });
+
+        form.addEventListener('submit', function (event) {
+            let formularioValido = true;
+
+            campos.forEach(function (campo) {
+                if (!validarCampo(campo)) {
+                    formularioValido = false;
+                }
+            });
+
+            if (!formularioValido) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
+
+            form.classList.add('was-validated');
+        });
+    })();
+</script>
 </body>
 </html>

@@ -20,6 +20,14 @@ import java.util.List;
  * (compras a proveedor, devoluciones, daños, pérdidas y ajustes) siguiendo la
  * misma lógica del checkout: cada movimiento guarda stock_anterior/actual y
  * actualiza el stock del producto. Las ventas del checkout se registran solas.
+ *
+ * Este controller es la ÚNICA vía autorizada para modificar Producto.stock:
+ * el formulario de crear/editar producto ya no lo toca (ver ProductoServiceImpl).
+ * Punto de extensión a futuro (no implementado todavía): cuando exista el
+ * módulo de pedidos, una venta confirmada debería generar aquí mismo un
+ * InventarioMovimiento de tipo VENTA (reutilizando este mismo método o su
+ * lógica de delta/validación) para descontar stock automáticamente; lo mismo
+ * para una devolución que decida reingresar stock.
  */
 @Controller
 @RequestMapping("/admin/inventario")

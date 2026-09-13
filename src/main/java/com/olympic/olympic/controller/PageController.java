@@ -229,48 +229,57 @@ public class PageController {
         return "redirect:/login";
     }
 
-    // Dashboard (home por rol). Ahora es accesible por cualquier usuario
-    // autenticado; su contenido y el menú lateral se adaptan al rol:
-    //   - ADMIN: métricas de la tienda (productos, stock, usuarios, categorías).
-    //   - CLIENTE: su propia información de cuenta.
+    // Dashboard de administración: solo accesible por ADMIN.
     @GetMapping("/admin")
     public String adminInicio(Model model) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        boolean esAdmin = esAdministrador(auth);
-
-        if (esAdmin) {
-            List<Producto> todos = productoRepository.findAll();
-            long totalProductos = todos.size();
-            long activos = todos.stream().filter(p -> Boolean.TRUE.equals(p.getActivo())).count();
-            long inactivos = totalProductos - activos;
-            long stockTotal = todos.stream().mapToLong(Producto::getStock).sum();
-            long stockBajo = todos.stream().filter(p -> p.getStock() != null && p.getStock() <= 5).count();
-
-            List<Usuario> usuarios = usuarioRepository.findAll();
-            long totalUsuarios = usuarios.size();
-            long totalAdmins = usuarios.stream().filter(u -> u.getRol() == Rol.ADMIN).count();
-            long totalClientes = usuarios.stream().filter(u -> u.getRol() == Rol.CLIENTE).count();
-            long categorias = categoriaRepository.findByActivoTrueOrderByNombreAsc().size();
-
-            model.addAttribute("esAdmin", true);
-            model.addAttribute("totalProductos", totalProductos);
-            model.addAttribute("productosActivos", activos);
-            model.addAttribute("productosInactivos", inactivos);
-            model.addAttribute("stockTotal", stockTotal);
-            model.addAttribute("stockBajo", stockBajo);
-            model.addAttribute("totalUsuarios", totalUsuarios);
-            model.addAttribute("totalAdmins", totalAdmins);
-            model.addAttribute("totalClientes", totalClientes);
-            model.addAttribute("totalCategorias", categorias);
-        } else {
-            model.addAttribute("esAdmin", false);
-            Usuario cliente = clienteAutenticado();
-            model.addAttribute("cliente", cliente);
-            if (cliente != null) {
-                cargarDatosCliente(model, cliente);
-            }
+        if (!esAdministrador(auth)) {
+            return "redirect:/cliente";
         }
+
+        List<Producto> todos = productoRepository.findAll();
+        long totalProductos = todos.size();
+        long activos = todos.stream().filter(p -> Boolean.TRUE.equals(p.getActivo())).count();
+        long inactivos = totalProductos - activos;
+        long stockTotal = todos.stream().mapToLong(Producto::getStock).sum();
+        long stockBajo = todos.stream().filter(p -> p.getStock() != null && p.getStock() <= 5).count();
+
+        List<Usuario> usuarios = usuarioRepository.findAll();
+        long totalUsuarios = usuarios.size();
+        long totalAdmins = usuarios.stream().filter(u -> u.getRol() == Rol.ADMIN).count();
+        long totalClientes = usuarios.stream().filter(u -> u.getRol() == Rol.CLIENTE).count();
+        long categorias = categoriaRepository.findByActivoTrueOrderByNombreAsc().size();
+
+        model.addAttribute("esAdmin", true);
+        model.addAttribute("totalProductos", totalProductos);
+        model.addAttribute("productosActivos", activos);
+        model.addAttribute("productosInactivos", inactivos);
+        model.addAttribute("stockTotal", stockTotal);
+        model.addAttribute("stockBajo", stockBajo);
+        model.addAttribute("totalUsuarios", totalUsuarios);
+        model.addAttribute("totalAdmins", totalAdmins);
+        model.addAttribute("totalClientes", totalClientes);
+        model.addAttribute("totalCategorias", categorias);
         return "admin/inicio";
+    }
+
+    // Dashboard del cliente: home separada con URL propia (/cliente).
+    @GetMapping("/cliente")
+    public String clienteInicio(Model model) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (esAdministrador(auth)) {
+            return "redirect:/admin";
+        }
+
+        Usuario cliente = clienteAutenticado();
+        if (cliente == null) {
+            return "redirect:/login";
+        }
+
+        model.addAttribute("esAdmin", false);
+        model.addAttribute("cliente", cliente);
+        cargarDatosCliente(model, cliente);
+        return "cliente/inicio";
     }
 
     // ── Páginas del cliente fuera del dashboard principal ────────────────
@@ -281,7 +290,7 @@ public class PageController {
     public String clientePerfil(Model model) {
         Usuario cliente = clienteAutenticado();
         if (cliente == null) {
-            return "redirect:/admin";
+            return "redirect:/cliente";
         }
         model.addAttribute("cliente", cliente);
         cargarDatosCliente(model, cliente);
@@ -293,7 +302,7 @@ public class PageController {
     public String clienteCompras(Model model) {
         Usuario cliente = clienteAutenticado();
         if (cliente == null) {
-            return "redirect:/admin";
+            return "redirect:/cliente";
         }
         model.addAttribute("esAdmin", false);
         model.addAttribute("cliente", cliente);
@@ -306,7 +315,7 @@ public class PageController {
     public String clientePagos(Model model) {
         Usuario cliente = clienteAutenticado();
         if (cliente == null) {
-            return "redirect:/admin";
+            return "redirect:/cliente";
         }
         model.addAttribute("esAdmin", false);
         model.addAttribute("cliente", cliente);
@@ -392,7 +401,7 @@ public class PageController {
     }
 
     private String homePorRol(Authentication auth) {
-        return esAdministrador(auth) ? "/admin" : "/admin";
+        return esAdministrador(auth) ? "/admin" : "/cliente";
     }
 
     private boolean esAdministrador(Authentication auth) {

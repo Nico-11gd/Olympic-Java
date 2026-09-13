@@ -44,6 +44,6 @@ public class WebConfig implements WebMvcConfigurer {
                 response.setHeader("Expires", "0");
                 return true;
             }
-        }).addPathPatterns("/admin/**", "/login", "/perfil/**");
+        }).addPathPatterns("/admin/**", "/cliente/**", "/login", "/perfil/**");
     }
 }

@@ -54,11 +54,10 @@ public class SecurityConfig {
                                 "/imagenes/**", "/marca/**", "/video/**", "/favicon.ico",
                                 "/css/**")
                         .permitAll()
-                        // El dashboard (/admin) es la home por rol: cualquier usuario
-                        // autenticado lo ve y se adapta a su rol. El resto del panel
-                        // (/admin/**) sigue reservado al ADMIN.
-                        .requestMatchers("/admin").authenticated()
-                        .requestMatchers("/admin/**").hasRole("ADMIN")
+                        // Panel de administración reservado al ADMIN; el panel del
+                        // cliente vive bajo /cliente y /cliente/**.
+                        .requestMatchers("/admin", "/admin/**").hasRole("ADMIN")
+                        .requestMatchers("/cliente", "/cliente/**").authenticated()
                         .anyRequest().authenticated())
                 .formLogin(form -> form
                         .loginPage("/login")
@@ -84,10 +83,8 @@ public class SecurityConfig {
             boolean esAdmin = authentication.getAuthorities().stream()
                     .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
 
-            // Ambos roles aterrizan en el dashboard (/admin): ADMIN ve sus métricas
-            // y el menú completo; CLIENTE ve su propia vista de cuenta.
             try {
-                response.sendRedirect("/admin");
+                response.sendRedirect(esAdmin ? "/admin" : "/cliente");
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }

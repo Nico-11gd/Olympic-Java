@@ -115,12 +115,6 @@
                     <a th:href="'#modal-editar-' + ${u.id}" class="btn btn-sm me-1" style="background:rgba(21,101,192,.15); color:#64B5F6;">
                         <i class="bi bi-pencil"></i>
                     </a>
-                    <form th:action="@{/admin/usuarios/{id}/eliminar(id=${u.id})}" method="post" class="d-inline"
-                          onsubmit="return confirm('¿Eliminar este usuario? Esta acción no se puede deshacer.');">
-                        <button type="submit" class="btn btn-sm" style="background:rgba(211,47,47,.12); color:#EF9A9A;" title="Eliminar">
-                            <i class="bi bi-trash"></i>
-                        </button>
-                    </form>
                 </td>
             </tr>
             </tbody>
@@ -188,29 +182,32 @@
 
         <div th:if="${usuarioFormError != null and usuarioFormId == null}" class="alert alert-danger py-2 small" th:text="${usuarioFormError}"></div>
 
-        <form th:action="@{/admin/usuarios/nuevo}" method="post" th:with="d=${usuarioFormNuevo}">
+        <form th:action="@{/admin/usuarios/nuevo}" method="post" th:with="d=${usuarioFormNuevo}" class="needs-validation" novalidate>
 
             <div class="mb-3">
                 <label class="form-label small fw-semibold">Nombre <span class="text-danger">*</span></label>
-                <div class="input-group">
+                <div class="input-group has-validation">
                     <span class="input-group-text campo-icono"><i class="bi bi-person"></i></span>
-                    <input type="text" name="nombre" th:value="${d.nombre}" class="form-control campo-icono" placeholder="Nombre completo" required minlength="2">
+                    <input type="text" name="nombre" th:value="${d.nombre}" class="form-control campo-icono" placeholder="Nombre completo" required minlength="2" pattern="[A-Za-zÁÉÍÓÚáéíóúñÑ\s]+">
+                    <div class="invalid-feedback">Mínimo 2 caracteres. Solo letras y espacios.</div>
                 </div>
             </div>
 
             <div class="mb-3">
                 <label class="form-label small fw-semibold">Correo <span class="text-danger">*</span></label>
-                <div class="input-group">
+                <div class="input-group has-validation">
                     <span class="input-group-text campo-icono"><i class="bi bi-envelope"></i></span>
                     <input type="email" name="correo" th:value="${d.correo}" class="form-control campo-icono" placeholder="correo@ejemplo.com" required>
+                    <div class="invalid-feedback">Ingresa un correo válido.</div>
                 </div>
             </div>
 
             <div class="mb-3">
                 <label class="form-label small fw-semibold">Contraseña <span class="text-danger">*</span></label>
-                <div class="input-group">
+                <div class="input-group has-validation">
                     <span class="input-group-text campo-icono"><i class="bi bi-lock"></i></span>
-                    <input type="password" name="password" class="form-control campo-icono" placeholder="Mín. 6 caracteres" required minlength="6">
+                    <input type="password" name="password" class="form-control campo-icono" placeholder="Mín. 8, con mayúscula, número y símbolo" required minlength="8" pattern="(?=.*[A-Z])(?=.*[a-z])(?=.*[0-9])(?=.*[^A-Za-z0-9]).+">
+                    <div class="invalid-feedback">Mínimo 8 caracteres, una mayúscula, una minúscula, un número y un símbolo.</div>
                 </div>
             </div>
 
@@ -221,6 +218,7 @@
                     <option value="admin" th:selected="${d.rol != null and d.rol.name() == 'ADMIN'}">Admin</option>
                     <option value="cliente" th:selected="${d.rol != null and d.rol.name() == 'CLIENTE'}">Cliente</option>
                 </select>
+                <div class="invalid-feedback">Selecciona un rol.</div>
             </div>
 
             <button type="submit" class="btn w-100 fw-bold py-2 rounded-pill btn-ol-gold">CREAR USUARIO</button>
@@ -238,21 +236,23 @@
 
             <div th:if="${usuarioFormError != null}" class="alert alert-danger py-2 small" th:text="${usuarioFormError}"></div>
 
-            <form th:action="@{/admin/usuarios/{id}/editar(id=${u.id})}" method="post">
+            <form th:action="@{/admin/usuarios/{id}/editar(id=${u.id})}" method="post" class="needs-validation" novalidate>
 
                 <div class="mb-3">
                     <label class="form-label small fw-semibold">Nombre <span class="text-danger">*</span></label>
-                    <div class="input-group">
+                    <div class="input-group has-validation">
                         <span class="input-group-text campo-icono"><i class="bi bi-person"></i></span>
-                        <input type="text" name="nombre" class="form-control campo-icono" required minlength="2" th:value="${u.nombre}">
+                        <input type="text" name="nombre" class="form-control campo-icono" required minlength="2" pattern="[A-Za-zÁÉÍÓÚáéíóúñÑ\s]+" th:value="${u.nombre}">
+                        <div class="invalid-feedback">Mínimo 2 caracteres. Solo letras y espacios.</div>
                     </div>
                 </div>
 
                 <div class="mb-3">
                     <label class="form-label small fw-semibold">Correo <span class="text-danger">*</span></label>
-                    <div class="input-group">
+                    <div class="input-group has-validation">
                         <span class="input-group-text campo-icono"><i class="bi bi-envelope"></i></span>
                         <input type="email" name="correo" class="form-control campo-icono" required th:value="${u.correo}">
+                        <div class="invalid-feedback">Ingresa un correo válido.</div>
                     </div>
                 </div>
 

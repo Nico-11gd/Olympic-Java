@@ -33,6 +33,9 @@ public class Producto {
     @Column(name = "offer_price", nullable = true, precision = 10, scale = 2)
     private BigDecimal offerPrice;
 
+    /** Solo debe modificarse a través de un movimiento de inventario
+     * (AdminInventarioController / InventarioMovimiento), nunca directamente
+     * desde el formulario de crear/editar producto. Arranca en 0 al crear. */
     @Column(name = "stock", nullable = false)
     private Integer stock = 0;
 

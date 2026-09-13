@@ -2,7 +2,6 @@ package com.olympic.olympic.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.PositiveOrZero;
 import jakarta.validation.constraints.Size;
 
 import java.math.BigDecimal;
@@ -29,10 +28,6 @@ public class ProductoRequest {
     @NotNull(message = "El precio es obligatorio.")
     @jakarta.validation.constraints.DecimalMin(value = "0.01", message = "El precio debe ser mayor que 0.")
     private BigDecimal precio;
-
-    @NotNull(message = "El stock es obligatorio.")
-    @PositiveOrZero(message = "El stock no puede ser negativo.")
-    private Integer stock;
 
     private Integer categoriaId;
 
@@ -81,14 +76,6 @@ public class ProductoRequest {
 
     public void setPrecio(BigDecimal precio) {
         this.precio = precio;
-    }
-
-    public Integer getStock() {
-        return stock;
-    }
-
-    public void setStock(Integer stock) {
-        this.stock = stock;
     }
 
     public Integer getCategoriaId() {

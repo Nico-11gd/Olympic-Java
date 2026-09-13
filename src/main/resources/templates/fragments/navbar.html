@@ -13,10 +13,10 @@
            class="btn btn-sm fw-semibold position-relative"
            style="background:var(--ol-gray); color:var(--ol-text); border:1px solid var(--ol-border);">
             <i class="bi bi-cart3 fs-5"></i>
-            <span th:if="${carritoContador != null and carritoContador > 0}"
+            <span id="carritoBadge"
                   class="position-absolute top-0 start-100 translate-middle badge rounded-pill"
-                  style="background:var(--ol-gold); color:var(--ol-black); font-size:.6rem;"
-                  th:text="${carritoContador}"></span>
+                  th:style="${carritoContador != null and carritoContador > 0} ? 'background:var(--ol-gold); color:var(--ol-black); font-size:.6rem;' : 'background:var(--ol-gold); color:var(--ol-black); font-size:.6rem; display:none;'"
+                  th:text="${carritoContador != null and carritoContador > 0} ? ${carritoContador} : ''"></span>
         </a>
 
         <a sec:authorize="!isAuthenticated()" th:href="@{/login}" class="btn btn-sm fw-semibold btn-ol-outline">
@@ -43,7 +43,8 @@
                         <p class="small mb-0" style="color:var(--ol-text-muted);" sec:authentication="name"></p>
                     </div>
                 </li>
-                <li><a class="dropdown-item" th:href="@{/admin}"><i class="bi bi-house-door me-2"></i>Mi panel</a></li>
+                <li sec:authorize="hasRole('ADMIN')"><a class="dropdown-item" th:href="@{/admin}"><i class="bi bi-house-door me-2"></i>Mi panel</a></li>
+                <li sec:authorize="hasRole('CLIENTE')"><a class="dropdown-item" th:href="@{/cliente}"><i class="bi bi-house-door me-2"></i>Mi panel</a></li>
                 <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#modalFotoPerfil"><i class="bi bi-camera me-2"></i>Cambiar foto</a></li>
                 <li><hr class="dropdown-divider"></li>
                 <li>
@@ -102,6 +103,64 @@
         </div>
     </div>
 </div>
+
+<script>
+// Abrir/cerrar el carrito con una clase (en vez de depender de :target),
+// porque al reemplazar el overlay con outerHTML el navegador pierde la
+// referencia de :target aunque el id se mantenga igual.
+document.addEventListener('click', function (e) {
+    var abrir = e.target.closest('a[href="#carrito"]');
+    if (abrir) {
+        e.preventDefault();
+        var overlay = document.getElementById('carrito');
+        if (overlay) overlay.classList.add('carrito-abierto');
+        if (location.hash !== '#carrito') history.pushState(null, '', '#carrito');
+        return;
+    }
+    var cerrar = e.target.closest('.carrito-close');
+    if (cerrar) {
+        e.preventDefault();
+        var overlay2 = document.getElementById('carrito');
+        if (overlay2) overlay2.classList.remove('carrito-abierto');
+    }
+});
+
+document.addEventListener('submit', function (e) {
+    var t = e.target;
+    if (!t || !t.action || t.action.indexOf('/carrito/') === -1) return;
+    e.preventDefault();
+    var overlay = document.getElementById('carrito');
+    fetch(t.action, { method: 'POST', body: new FormData(t), headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+        .then(function (r) {
+            var contador = r.headers.get('X-Carrito-Contador');
+            return r.text().then(function (html) {
+                if (overlay) {
+                    overlay.outerHTML = html;
+                    var nuevo = document.getElementById('carrito');
+                    if (nuevo) nuevo.classList.add('carrito-abierto');
+                }
+                actualizarBadgeCarrito(contador);
+                if (location.hash !== '#carrito') history.pushState(null, '', '#carrito');
+            });
+        });
+});
+
+function actualizarBadgeCarrito(contador) {
+    var badge = document.getElementById('carritoBadge');
+    if (!contador || Number(contador) <= 0) { if (badge) badge.style.display = 'none'; return; }
+    if (!badge) {
+        var a = document.querySelector('a[href="#carrito"]');
+        if (!a) return;
+        badge = document.createElement('span');
+        badge.id = 'carritoBadge';
+        badge.className = 'position-absolute top-0 start-100 translate-middle badge rounded-pill';
+        badge.style.cssText = 'background:var(--ol-gold);color:var(--ol-black);font-size:.6rem;';
+        a.appendChild(badge);
+    }
+    badge.textContent = contador;
+    badge.style.display = '';
+}
+</script>
 
 </div>
 </body>

@@ -20,7 +20,13 @@
 
             <p class="text-uppercase small fw-semibold px-3 mt-2 mb-1"
                style="color:var(--ol-text-muted); font-size:.65rem; letter-spacing:1px;">Principal</p>
-            <a th:href="@{/admin}" class="d-flex align-items-center gap-3 px-3 py-2 text-decoration-none"
+            <a sec:authorize="hasRole('ADMIN')" th:href="@{/admin}" class="d-flex align-items-center gap-3 px-3 py-2 text-decoration-none"
+               th:classappend="${currentPage == 'inicio'} ? 'sidebar-active' : ''"
+               style="color:var(--ol-text);">
+                <i class="bi bi-speedometer2 fs-5" style="color:var(--ol-gold); width:22px; text-align:center;"></i>
+                <span class="fw-semibold">Inicio</span>
+            </a>
+            <a sec:authorize="hasRole('CLIENTE')" th:href="@{/cliente}" class="d-flex align-items-center gap-3 px-3 py-2 text-decoration-none"
                th:classappend="${currentPage == 'inicio'} ? 'sidebar-active' : ''"
                style="color:var(--ol-text);">
                 <i class="bi bi-speedometer2 fs-5" style="color:var(--ol-gold); width:22px; text-align:center;"></i>
@@ -166,7 +172,8 @@
                         <p class="small mb-0" style="color:var(--ol-text-muted);" sec:authentication="name"></p>
                     </div>
                 </li>
-                <li><a class="dropdown-item" th:href="@{/admin}"><i class="bi bi-house-door me-2"></i>Mi panel</a></li>
+                <li sec:authorize="hasRole('ADMIN')"><a class="dropdown-item" th:href="@{/admin}"><i class="bi bi-house-door me-2"></i>Mi panel</a></li>
+                <li sec:authorize="hasRole('CLIENTE')"><a class="dropdown-item" th:href="@{/cliente}"><i class="bi bi-house-door me-2"></i>Mi panel</a></li>
                 <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#modalEditarPerfil"><i class="bi bi-person-gear me-2"></i>Editar datos</a></li>
                 <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#modalFotoPerfilAdmin"><i class="bi bi-camera me-2"></i>Cambiar foto</a></li>
                 <li><hr class="dropdown-divider"></li>
@@ -199,25 +206,32 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
             </div>
             <div class="modal-body">
-                <form th:action="@{/perfil/actualizar}" method="post">
+                <form id="formEditarPerfil" th:action="@{/perfil/actualizar}" method="post" class="needs-validation" novalidate>
                     <div class="mb-3">
                         <label for="perfilNombre" class="small fw-semibold" style="color:var(--ol-text-muted);">Nombre de usuario</label>
                         <input type="text" id="perfilNombre" name="nombre" class="form-control" required minlength="2"
+                               pattern="[A-Za-zÁÉÍÓÚáéíóúñÑ\s]+"
                                th:value="${usuarioActual != null ? usuarioActual.nombre : ''}" placeholder="Tu nombre">
+                        <div class="invalid-feedback">Mínimo 2 caracteres. Solo letras y espacios.</div>
                     </div>
                     <div class="small text-ol-muted mb-2">Deja vacíos los campos de contraseña si no quieres cambiarla.</div>
                     <div class="mb-3">
                         <label for="perfilPassActual" class="small fw-semibold" style="color:var(--ol-text-muted);">Contraseña actual</label>
                         <input type="password" id="perfilPassActual" name="passwordActual" class="form-control" autocomplete="current-password" placeholder="Solo para cambiar la contraseña">
+                        <div class="invalid-feedback">Ingresa tu contraseña actual para cambiarla.</div>
                     </div>
                     <div class="row g-3">
                         <div class="col-6">
                             <label for="perfilPassNueva" class="small fw-semibold" style="color:var(--ol-text-muted);">Nueva contraseña</label>
-                            <input type="password" id="perfilPassNueva" name="nuevaPassword" class="form-control" autocomplete="new-password" placeholder="Mín. 6 caracteres">
+                            <input type="password" id="perfilPassNueva" name="nuevaPassword" class="form-control" autocomplete="new-password"
+                                   placeholder="Mín. 8, con mayúscula, número y símbolo" minlength="8"
+                                   pattern="(?=.*[A-Z])(?=.*[a-z])(?=.*[0-9])(?=.*[^A-Za-z0-9]).+">
+                            <div class="invalid-feedback">Mínimo 8 caracteres, una mayúscula, una minúscula, un número y un símbolo.</div>
                         </div>
                         <div class="col-6">
                             <label for="perfilPassConfirmar" class="small fw-semibold" style="color:var(--ol-text-muted);">Confirmar contraseña</label>
                             <input type="password" id="perfilPassConfirmar" name="confirmarPassword" class="form-control" autocomplete="new-password" placeholder="Repite la contraseña">
+                            <div class="invalid-feedback">Las contraseñas no coinciden.</div>
                         </div>
                     </div>
                     <button type="submit" class="btn w-100 fw-bold py-2 rounded-pill btn-ol-gold mt-4">
@@ -249,15 +263,16 @@
                          th:text="${usuarioActual != null} ? ${#strings.substring(usuarioActual.nombre, 0, 1)} : 'U'"></div>
                     <p class="small text-ol-muted mb-0">Foto actual</p>
                 </div>
-                <form th:action="@{/perfil/foto}" method="post" enctype="multipart/form-data">
+                <form id="formFotoPerfilAdmin" th:action="@{/perfil/foto}" method="post" enctype="multipart/form-data" class="needs-validation" novalidate>
                     <div class="mb-3">
                         <label for="archivoFotoAdmin" class="foto-upload-zone d-block">
                             <i class="bi bi-cloud-arrow-up fs-2 d-block mb-2" style="color:var(--ol-gold);"></i>
                             <span class="fw-semibold" style="color:var(--ol-text);">Toca para seleccionar una imagen</span>
                             <div class="small text-ol-muted mt-1">JPG, PNG o WEBP · Max 5MB</div>
                         </label>
-                        <input type="file" id="archivoFotoAdmin" name="archivoFoto" accept=".jpg,.jpeg,.png,.webp" class="d-none"
+                        <input type="file" id="archivoFotoAdmin" name="archivoFoto" accept=".jpg,.jpeg,.png,.webp" class="d-none" required
                                onchange="if(this.files&&this.files[0]){var r=new FileReader();r.onload=function(e){document.getElementById('previewFotoAdmin').src=e.target.result;document.getElementById('previewFotoAdmin').classList.remove('d-none');document.getElementById('uploadPlaceholderAdmin').classList.add('d-none');};r.readAsDataURL(this.files[0]);}">
+                        <div class="invalid-feedback d-block">Selecciona una imagen (JPG, PNG o WEBP, máx. 5 MB).</div>
                     </div>
                     <div class="text-center mb-3">
                         <img id="previewFotoAdmin" class="avatar-ol-lg d-none" alt="Preview">
@@ -273,6 +288,103 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+(function () {
+    'use strict';
+
+    function activarValidacionTiempoReal(form) {
+        if (!form || form.dataset.validationInit) return;
+        form.dataset.validationInit = '1';
+
+        form.querySelectorAll('input, select, textarea').forEach(function (campo) {
+            ['input', 'change', 'blur'].forEach(function (evt) {
+                campo.addEventListener(evt, function () {
+                    if (campo.willValidate !== false) {
+                        form.classList.add('was-validated');
+                    }
+                });
+            });
+        });
+
+        form.addEventListener('submit', function (event) {
+            if (!form.checkValidity()) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
+            form.classList.add('was-validated');
+        });
+    }
+
+    function validarPerfilPassword() {
+        var form = document.getElementById('formEditarPerfil');
+        if (!form) return;
+
+        var actual = document.getElementById('perfilPassActual');
+        var nueva = document.getElementById('perfilPassNueva');
+        var confirmar = document.getElementById('perfilPassConfirmar');
+        if (!actual || !nueva || !confirmar) return;
+
+        // El minlength y el pattern de "nueva" ya los evalúa el navegador
+        // (checkValidity); aquí solo se resuelven las reglas entre campos.
+        var cambiaClave = nueva.value.length > 0 || confirmar.value.length > 0;
+
+        actual.setCustomValidity(cambiaClave && !actual.value ? 'Ingresa tu contraseña actual.' : '');
+
+        if (cambiaClave && !confirmar.value) {
+            confirmar.setCustomValidity('Confirma tu nueva contraseña.');
+        } else if (cambiaClave && confirmar.value !== nueva.value) {
+            confirmar.setCustomValidity('Las contraseñas no coinciden.');
+        } else {
+            confirmar.setCustomValidity('');
+        }
+    }
+
+    function validarFotoPerfil(input) {
+        if (!input || !input.files || !input.files[0]) {
+            input.setCustomValidity('Selecciona una imagen.');
+            return;
+        }
+        var archivo = input.files[0];
+        var extension = archivo.name.split('.').pop().toLowerCase();
+        if (['jpg', 'jpeg', 'png', 'webp'].indexOf(extension) === -1) {
+            input.setCustomValidity('Formato no válido. Usa JPG, PNG o WEBP.');
+        } else if (archivo.size > 5 * 1024 * 1024) {
+            input.setCustomValidity('La imagen no puede superar 5 MB.');
+        } else {
+            input.setCustomValidity('');
+        }
+    }
+
+    function initPanelValidaciones() {
+        document.querySelectorAll('.needs-validation').forEach(activarValidacionTiempoReal);
+
+        var formPerfil = document.getElementById('formEditarPerfil');
+        if (formPerfil) {
+            ['input', 'change', 'blur'].forEach(function (evt) {
+                formPerfil.addEventListener(evt, validarPerfilPassword);
+            });
+            formPerfil.addEventListener('submit', function () {
+                validarPerfilPassword();
+            });
+        }
+
+        var inputFoto = document.getElementById('archivoFotoAdmin');
+        if (inputFoto) {
+            inputFoto.addEventListener('change', function () {
+                validarFotoPerfil(inputFoto);
+                var form = inputFoto.closest('form');
+                if (form) form.classList.add('was-validated');
+            });
+        }
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initPanelValidaciones);
+    } else {
+        initPanelValidaciones();
+    }
+})();
+</script>
 
 </th:block>
 

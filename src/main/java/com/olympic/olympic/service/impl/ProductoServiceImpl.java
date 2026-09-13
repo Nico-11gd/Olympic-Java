@@ -11,6 +11,7 @@ import com.olympic.olympic.exception.RecursoNoEncontradoException;
 import com.olympic.olympic.repository.CategoriaRepository;
 import com.olympic.olympic.repository.ProductoRepository;
 import com.olympic.olympic.repository.PromocionRepository;
+import com.olympic.olympic.service.ImagenProductoService;
 import com.olympic.olympic.service.ProductoService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -34,14 +35,17 @@ public class ProductoServiceImpl implements ProductoService {
     private final ProductoRepository productoRepository;
     private final CategoriaRepository categoriaRepository;
     private final PromocionRepository promocionRepository;
+    private final ImagenProductoService imagenProductoService;
 
     public ProductoServiceImpl(
             ProductoRepository productoRepository,
             CategoriaRepository categoriaRepository,
-            PromocionRepository promocionRepository) {
+            PromocionRepository promocionRepository,
+            ImagenProductoService imagenProductoService) {
         this.productoRepository = productoRepository;
         this.categoriaRepository = categoriaRepository;
         this.promocionRepository = promocionRepository;
+        this.imagenProductoService = imagenProductoService;
     }
 
     @Override
@@ -99,11 +103,18 @@ public class ProductoServiceImpl implements ProductoService {
         producto.setCodigo(codigo);
         producto.setDescripcion(request.getDescripcion() != null ? request.getDescripcion().trim() : null);
         producto.setPrecio(request.getPrecio());
-        producto.setStock(request.getStock());
+        // El stock NO se toca aquí: al crear, Producto.stock arranca en 0 por su
+        // valor por defecto en la entidad; al editar, se conserva tal cual. La
+        // única vía autorizada para cambiar el stock es un movimiento registrado
+        // en AdminInventarioController (entrada/salida/ajuste, y a futuro venta).
         // Solo se reemplaza la imagen si viene una nueva (subida en el controller);
         // si no se seleccionó archivo nuevo, se conserva la imagen actual del producto.
         if (request.getImagen() != null && !request.getImagen().isBlank()) {
+            String imagenesAnteriores = producto.getImagen();
             producto.setImagen(request.getImagen());
+            if (!esCreacion && imagenesAnteriores != null && !imagenesAnteriores.isBlank()) {
+                eliminarImagenes(imagenesAnteriores);
+            }
         }
         producto.setTalla(request.getTalla());
         producto.setColor(request.getColor());
@@ -236,5 +247,15 @@ public class ProductoServiceImpl implements ProductoService {
     private Producto buscarPorId(Integer id) {
         return productoRepository.findById(id)
                 .orElseThrow(() -> new RecursoNoEncontradoException("Producto no encontrado"));
+    }
+
+    /** Borra del disco cada archivo de un CSV de nombres de imagen (portada + demás). */
+    private void eliminarImagenes(String nombresCsv) {
+        for (String nombre : nombresCsv.split(",")) {
+            String limpio = nombre.trim();
+            if (!limpio.isEmpty()) {
+                imagenProductoService.eliminar(limpio);
+            }
+        }
     }
 }

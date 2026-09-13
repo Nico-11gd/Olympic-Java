@@ -136,7 +136,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
             </div>
             <div class="modal-body">
-                <form th:action="@{/admin/inventario/registrar}" method="post">
+                <form id="form-movimiento" th:action="@{/admin/inventario/registrar}" method="post" class="needs-validation" novalidate>
                     <div class="mb-3">
                         <label class="small fw-semibold" style="color:var(--ol-text-muted);">Producto</label>
                         <select name="productoId" class="form-select" required>
@@ -144,21 +144,24 @@
                             <option th:each="p : ${productos}" th:value="${p.id}"
                                     th:text="${p.nombre} + ' (stock: ' + ${p.stock != null ? p.stock : 0} + ')'"></option>
                         </select>
+                        <div class="invalid-feedback">Selecciona un producto.</div>
                     </div>
                     <div class="row g-3">
                         <div class="col-6">
                             <label class="small fw-semibold" style="color:var(--ol-text-muted);">Tipo</label>
-                            <select name="tipo" class="form-select" required>
+                            <select id="movTipo" name="tipo" class="form-select" required>
                                 <option th:each="t : ${tiposMovimiento}" th:value="${t.valor}"
                                         th:text="${#strings.capitalize(t.valor)}"></option>
                             </select>
+                            <div class="invalid-feedback">Selecciona un tipo.</div>
                             <div class="small mt-1" style="color:var(--ol-text-muted);">
                                 Entrada y devolución aumentan el stock; daño y pérdida lo reducen.
                             </div>
                         </div>
                         <div class="col-6">
                             <label class="small fw-semibold" style="color:var(--ol-text-muted);">Cantidad</label>
-                            <input type="number" name="cantidad" min="1" step="1" class="form-control" required placeholder="Ej: 10">
+                            <input type="number" id="movCantidad" name="cantidad" step="1" class="form-control" required placeholder="Ej: 10">
+                            <div id="movCantidadFeedback" class="invalid-feedback">La cantidad debe ser mayor a 0.</div>
                             <div class="small mt-1" style="color:var(--ol-text-muted);">
                                 En ajuste usa valor negativo para una salida.
                             </div>
@@ -176,6 +179,57 @@
         </div>
     </div>
 </div>
+
+<script>
+    (function () {
+        var tipoSelect = document.getElementById('movTipo');
+        var cantidadInput = document.getElementById('movCantidad');
+        var feedback = document.getElementById('movCantidadFeedback');
+
+        function validarCantidadMovimiento() {
+            if (!tipoSelect || !cantidadInput) return;
+
+            if (cantidadInput.value === '') {
+                cantidadInput.setCustomValidity('');
+                return;
+            }
+
+            var valor = parseInt(cantidadInput.value, 10);
+            var esAjuste = tipoSelect.value === 'ajuste';
+
+            if (isNaN(valor)) {
+                cantidadInput.setCustomValidity('');
+            } else if (valor === 0) {
+                cantidadInput.setCustomValidity('La cantidad debe ser diferente de 0.');
+                if (feedback) feedback.textContent = 'La cantidad debe ser diferente de 0.';
+            } else if (!esAjuste && valor < 0) {
+                cantidadInput.setCustomValidity('La cantidad debe ser mayor a 0.');
+                if (feedback) feedback.textContent = 'La cantidad debe ser mayor a 0.';
+            } else {
+                cantidadInput.setCustomValidity('');
+            }
+        }
+
+        if (tipoSelect && cantidadInput) {
+            ['input', 'change', 'blur'].forEach(function (evt) {
+                cantidadInput.addEventListener(evt, validarCantidadMovimiento);
+            });
+            tipoSelect.addEventListener('change', validarCantidadMovimiento);
+        }
+
+        var form = document.getElementById('form-movimiento');
+        if (form) {
+            form.addEventListener('submit', function () {
+                if (!form.checkValidity()) return;
+                var boton = form.querySelector('button[type="submit"]');
+                if (boton) {
+                    boton.disabled = true;
+                    boton.innerHTML = '<i class="bi bi-hourglass-split me-1"></i>Registrando...';
+                }
+            });
+        }
+    })();
+</script>
 
 </body>
 </html>

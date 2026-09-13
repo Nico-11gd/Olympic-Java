@@ -205,7 +205,7 @@ a { transition: var(--ol-transition); }
     left: 50%;
     top: 50%;
     transform: translate(-50%, -50%);
-    height: 44px;
+    height: 95px;
     width: auto;
     object-fit: contain;
 }
@@ -416,6 +416,15 @@ header .dropdown-menu {
     color: var(--ol-text) !important;
 }
 
+/* ── Dropzone de imagen (crear/editar producto) — contraste con los demás campos ── */
+.dropzone-imagen {
+    background: rgba(212,175,55,.06);
+    border: 2px dashed var(--ol-border);
+    cursor: pointer;
+    transition: var(--ol-transition);
+}
+.dropzone-imagen:hover { border-color: var(--ol-gold); background: rgba(212,175,55,.12); }
+
 /* ── Product detail ── */
 .product-detail-ol {
     background: var(--ol-card);
@@ -469,7 +478,8 @@ header .dropdown-menu {
     opacity: 0; pointer-events: none;
     transition: opacity .3s ease;
 }
-.carrito-overlay:target { opacity: 1; pointer-events: auto; }
+.carrito-overlay:target,
+.carrito-overlay.carrito-abierto { opacity: 1; pointer-events: auto; }
 
 .carrito-panel {
     position: fixed; top: 0; right: 0; z-index: 1060;
@@ -481,7 +491,8 @@ header .dropdown-menu {
     transition: transform .3s ease;
     display: flex; flex-direction: column;
 }
-.carrito-overlay:target .carrito-panel { transform: translateX(0); }
+.carrito-overlay:target .carrito-panel,
+.carrito-overlay.carrito-abierto .carrito-panel { transform: translateX(0); }
 
 .carrito-header {
     display: flex; align-items: center; justify-content: space-between;
@@ -993,3 +1004,7 @@ header .dropdown-menu {
     height: 18px;
     flex: none;
 }
+
+    /*V alidacion */
+.form-control.is-invalid { border-color: var(--ol-danger) !important; }
+.form-control.is-valid   { border-color: var(--ol-success) !important; }
